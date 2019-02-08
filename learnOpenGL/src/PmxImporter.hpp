@@ -47,7 +47,7 @@ namespace yr
 			return Src + size;
 		}
 
-		void PmxImporter::Load()
+		void PmxImporter::Load(Mesh &mesh)
 		{
 			fseek(fs, 0, SEEK_END);
 			long fsize = ftell(fs);
@@ -209,7 +209,7 @@ namespace yr
 				vert.Tangent = glm::vec3(0, 0, 0);
 				vert.Bitangent = glm::vec3(0, 0, 0);
 
-				vertices.push_back(vert);
+				mesh.vertices.push_back(vert);
 
 				if (verbose) {
 					cout << "Position [ " << i << "]: " << "(" << position[0] << ", " << position[1] << ", " << position[2] << ")" << endl;
@@ -220,65 +220,58 @@ namespace yr
 				free(additionalVec4);
 			}
 
-
-
-			int32_t surfaceCount;
-			//fread(&surfaceCount, sizeof(int32_t), 1, fs);
+			// read face data
 			current = yrRead(&surfaceCount, current, sizeof(int32_t));
 
 			for (int32_t i = 0; i < surfaceCount; ++i)
 			{
 				int32_t index;
 				current = yrRead(&index, current, vertexIndexSize);
-				indices.push_back(index);
+				mesh.indices.push_back(static_cast<unsigned int>(index));
 			}
 
-			// Read Materials
+			// Read Texture & Materials
+			// WIP
+
 		}
 
-		void DebugObj()
-		{
-			// write to obj for testing
+		//void DebugObj()
+		//{
+		//	// write to obj for testing
+		//	FILE *newfs = fopen("test.obj", "w");
 
-			FILE *newfs = fopen("test.obj", "w");
-
-			for (int i = 0; i < vertices.size(); ++i) {
-				fprintf(newfs, "v %f %f %f\n", vertices[i].Position[0], vertices[i].Position[1], vertices[i].Position[2]);
-			}
-
-
-			for (int i = 0; i < vertices.size(); ++i) {
-				fprintf(newfs, "vt %f %f\n", vertices[i].TexCoords[0], vertices[i].TexCoords[1]);
-			}
+		//	for (int i = 0; i < vertices.size(); ++i) {
+		//		fprintf(newfs, "v %f %f %f\n", vertices[i].Position[0], vertices[i].Position[1], vertices[i].Position[2]);
+		//	}
 
 
-			for (int i = 0; i < vertices.size(); ++i) {
-				fprintf(newfs, "vn %f %f %f\n", vertices[i].Normal[0], vertices[i].Normal[1], vertices[i].Normal[2]);
-			}
+		//	for (int i = 0; i < vertices.size(); ++i) {
+		//		fprintf(newfs, "vt %f %f\n", vertices[i].TexCoords[0], vertices[i].TexCoords[1]);
+		//	}
 
-			for (int i = 0; i < indices.size(); i += 3) {
-				fprintf(newfs, "f %d/%d/%d %d/%d/%d %d/%d/%d\n",
-					indices[i] + 1,
-					indices[i] + 1,
-					indices[i] + 1,
-					indices[i + 1] + 1,
-					indices[i + 1] + 1,
-					indices[i + 1] + 1,
-					indices[i + 2] + 1,
-					indices[i + 2] + 1,
-					indices[i + 2] + 1);
-			}
 
-			fclose(newfs);
+		//	for (int i = 0; i < vertices.size(); ++i) {
+		//		fprintf(newfs, "vn %f %f %f\n", vertices[i].Normal[0], vertices[i].Normal[1], vertices[i].Normal[2]);
+		//	}
 
-		}
+		//	for (int i = 0; i < indices.size(); i += 3) {
+		//		fprintf(newfs, "f %d/%d/%d %d/%d/%d %d/%d/%d\n",
+		//			indices[i] + 1,
+		//			indices[i] + 1,
+		//			indices[i] + 1,
+		//			indices[i + 1] + 1,
+		//			indices[i + 1] + 1,
+		//			indices[i + 1] + 1,
+		//			indices[i + 2] + 1,
+		//			indices[i + 2] + 1,
+		//			indices[i + 2] + 1);
+		//	}
+
+		//	fclose(newfs);
+
+		//}
 
 	private:
-
-		// Mesh m_mesh;
-
-		vector<Vertex> vertices;
-		vector<int> indices;
 
 		bool verbose = false;
 		FILE* fs;
@@ -313,6 +306,9 @@ namespace yr
 
 		// Vertex Data
 		int32_t vertexCount;
+
+		// Surface Data
+		int32_t surfaceCount;
 
 	};
 

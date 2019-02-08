@@ -1,29 +1,15 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-// #include <glad/glad.h> 
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image/stb_image.h>
 
-//#include <assimp/Importer.hpp>
-//#include <assimp/scene.h>
-//#include <assimp/postprocess.h>
+#include <iostream>
 
 #include "mesh.h"
-
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <map>
-#include <vector>
-
-#include <algorithm>
-
 #include "PmxImporter.hpp"
 
 using namespace std;
@@ -41,46 +27,30 @@ class Model
 
 		const string enumString[4] = { "PMX", "PMD", "X", "LENGTH" };
 		
-		/*  Model Data */
-		vector<Texture> textures_loaded;	// stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
-		vector<Mesh> meshes;
 		string path;
 		string directory;
-		FILE *fs;
-		bool gammaCorrection;
+
+		Mesh mesh;
 
 		/*  Functions   */
 		// constructor, expects a filepath to a 3D model.
-		Model(string const &path, bool gamma = false) : path(path), gammaCorrection(gamma) { }
+		Model(string const &path)
+		{ 
+			FILE *fs;
 
-		// draws the model, and thus all its meshes
-		/*void Draw(Shader shader)
-		{
-			for(unsigned int i = 0; i < meshes.size(); i++)
-				meshes[i].Draw(shader);
-		}*/
-    
-		bool Load()
-		{
 			// retrieve the directory path of the filepath
 			directory = path.substr(0, path.find_last_of('/'));
 
-			cout << "Open File: " << path << endl;
-
 			errno_t err = fopen_s(&fs, path.c_str(), "r");
-
 			cout << "File Open: " << ((err != 0) ? "FAIL" : "PASS") << endl;
-
 			if (err != 0) {
-				return false;
+				return;
 			}
 
 			string type = path.substr(path.find_last_of('.'), path.length());
-
 			std::transform(type.begin(), type.end(), type.begin(), ::tolower);
 
 			MODELTYPE modelType = MODELTYPE::LENGTH;
-
 			if (type == ".pmx")
 				modelType = MODELTYPE::PMX;
 			else if (type == ".pmd")
@@ -90,10 +60,10 @@ class Model
 
 			cout << "Model Type: " << type << "(" << enumString[static_cast<int>(modelType)] << ")" << endl;
 
-			switch (modelType) 
+			switch (modelType)
 			{
 				case MODELTYPE::PMX:
-					LoadPMX();
+					LoadPMX(fs);
 					break;
 				case MODELTYPE::PMD:
 					break;
@@ -103,16 +73,12 @@ class Model
 					break;
 			}
 
-			return true;
 		}
-		
-		void LoadPMX(bool verbose = false)
+
+		void LoadPMX(FILE *fs, bool verbose = false)
 		{
-			verbose = false;
-
 			yr::PmxImporter pmxImporter(fs, verbose);
-
-			pmxImporter.Load();
+			pmxImporter.Load(this->mesh);
 		}
 
 	private:

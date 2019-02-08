@@ -359,7 +359,8 @@ namespace yr
 		void DebugObj(Mesh mesh)
 		{
 			// write to obj for testing
-			FILE *newfs = fopen("test.obj", "w");
+			FILE *newfs;
+			errno_t err = fopen_s(&newfs, "test.obj", "w");
 
 			for (int i = 0; i < mesh.vertices.size(); ++i) {
 				fprintf(newfs, "v %f %f %f\n", mesh.vertices[i].Position[0], mesh.vertices[i].Position[1], mesh.vertices[i].Position[2]);

@@ -1,8 +1,8 @@
 ﻿#ifndef BEHAVIOUR_H
 #define BEHAVIOUR_H
 
-#include <windows.h>
-#include <gl/GL.h>
+//#include <windows.h>
+//#include <gl/GL.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -90,7 +90,7 @@ class Behaviour
 			glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, &MVP[0][0]);
 
 			glBindVertexArray(VAO);
-			// glDrawElements(GL_TRIANGLES, ppk.mesh.indices.size(), GL_UNSIGNED_INT, 0);
+			glDrawElements(GL_TRIANGLES, ppk.mesh.indices.size(), GL_UNSIGNED_INT, 0);
 
 		/*	for (int i = 0; i < ppk.mesh.indices.size(); i += 3) {
 				int index0 = ppk.mesh.indices[i];

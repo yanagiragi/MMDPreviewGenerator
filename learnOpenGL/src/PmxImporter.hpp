@@ -235,41 +235,41 @@ namespace yr
 
 		}
 
-		//void DebugObj()
-		//{
-		//	// write to obj for testing
-		//	FILE *newfs = fopen("test.obj", "w");
+		void DebugObj(Mesh mesh)
+		{
+			// write to obj for testing
+			FILE *newfs = fopen("test.obj", "w");
 
-		//	for (int i = 0; i < vertices.size(); ++i) {
-		//		fprintf(newfs, "v %f %f %f\n", vertices[i].Position[0], vertices[i].Position[1], vertices[i].Position[2]);
-		//	}
-
-
-		//	for (int i = 0; i < vertices.size(); ++i) {
-		//		fprintf(newfs, "vt %f %f\n", vertices[i].TexCoords[0], vertices[i].TexCoords[1]);
-		//	}
+			for (int i = 0; i < mesh.vertices.size(); ++i) {
+				fprintf(newfs, "v %f %f %f\n", mesh.vertices[i].Position[0], mesh.vertices[i].Position[1], mesh.vertices[i].Position[2]);
+			}
 
 
-		//	for (int i = 0; i < vertices.size(); ++i) {
-		//		fprintf(newfs, "vn %f %f %f\n", vertices[i].Normal[0], vertices[i].Normal[1], vertices[i].Normal[2]);
-		//	}
+			for (int i = 0; i < mesh.vertices.size(); ++i) {
+				fprintf(newfs, "vt %f %f\n", mesh.vertices[i].TexCoords[0], mesh.vertices[i].TexCoords[1]);
+			}
 
-		//	for (int i = 0; i < indices.size(); i += 3) {
-		//		fprintf(newfs, "f %d/%d/%d %d/%d/%d %d/%d/%d\n",
-		//			indices[i] + 1,
-		//			indices[i] + 1,
-		//			indices[i] + 1,
-		//			indices[i + 1] + 1,
-		//			indices[i + 1] + 1,
-		//			indices[i + 1] + 1,
-		//			indices[i + 2] + 1,
-		//			indices[i + 2] + 1,
-		//			indices[i + 2] + 1);
-		//	}
 
-		//	fclose(newfs);
+			for (int i = 0; i < mesh.vertices.size(); ++i) {
+				fprintf(newfs, "vn %f %f %f\n", mesh.vertices[i].Normal[0], mesh.vertices[i].Normal[1], mesh.vertices[i].Normal[2]);
+			}
 
-		//}
+			for (int i = 0; i < mesh.indices.size(); i += 3) {
+				fprintf(newfs, "f %d/%d/%d %d/%d/%d %d/%d/%d\n",
+					mesh.indices[i] + 1,
+					mesh.indices[i] + 1,
+					mesh.indices[i] + 1,
+					mesh.indices[i + 1] + 1,
+					mesh.indices[i + 1] + 1,
+					mesh.indices[i + 1] + 1,
+					mesh.indices[i + 2] + 1,
+					mesh.indices[i + 2] + 1,
+					mesh.indices[i + 2] + 1);
+			}
+
+			fclose(newfs);
+
+		}
 
 	private:
 

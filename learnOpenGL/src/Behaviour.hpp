@@ -1,5 +1,4 @@
-﻿#pragma once
-#ifndef BEHAVIOUR_H
+﻿#ifndef BEHAVIOUR_H
 #define BEHAVIOUR_H
 
 #include <glad/glad.h>
@@ -77,8 +76,9 @@ class Behaviour
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
 
-			//Model ppk = Model("C:\\Users\\Ragi\\Desktop\\Template\\learnOpenGL\\Resources\\TDA China Princess Haku Ver. 1.0\\haku.pmx");
-			Model ppk = Model("Hatsura.pmx");			
+			Model ppk = Model("D:\\_Repository\\Github Projects\\MMDPreviewGenerator\\learnOpenGL\\Resources\\haku\\haku.pmx");
+			
+			ppk.Load();
 
 			glBindVertexArray(0);
 		}
@@ -95,7 +95,7 @@ class Behaviour
 			// glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 			// update the uniform of fragment shader
-			float time = glfwGetTime();
+			float time = static_cast<float>(glfwGetTime());
 			float greenValue = (sin(time) / 2.0f) + 0.5f;
 			int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 

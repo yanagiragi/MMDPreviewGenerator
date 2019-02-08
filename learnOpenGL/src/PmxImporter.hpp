@@ -148,14 +148,6 @@ namespace yr
 			const int sizeOfSDEF = vertexIndexSizeForDeform * 2 + sizeof(float) * 1 + (sizeof(float) * 3) * 3;
 			const int sizeOfQDEF = vertexIndexSizeForDeform * 4 + sizeof(float) * 4;
 
-			int32_t index1;
-			int32_t index2;
-			int32_t index3;
-			int32_t index4;
-			float boneWeight1;
-			float boneWeight2;
-			size_t size;
-
 			int8_t* weightDeform = NULL;
 
 			for (int32_t i = 0; i < vertexCount; ++i)
@@ -230,9 +222,138 @@ namespace yr
 				mesh.indices.push_back(static_cast<unsigned int>(index));
 			}
 
-			// Read Texture & Materials
-			// WIP
+			// Read Texture
+			current = yrRead(&textureCount, current, sizeof(int32_t));
+			
+			for (int32_t i = 0; i < textureCount; ++i)
+			{
+				int8_t* texturePath;
+				uint32_t texturePathLength;
+				current = yrRead(&texturePathLength, current, sizeof(uint32_t));
+				texturePath = (int8_t*)malloc(sizeof(int8_t) * texturePathLength);
+				current = yrRead(texturePath, current, sizeof(int8_t) * texturePathLength);
 
+				string texturePathStr = "";
+				for (uint32_t j = 0; j < texturePathLength; ++j) {
+					// output ascii exclude '\t\n' & control characters
+					if (texturePath[j] <= 0x7f && texturePath[j] >= 0x20)
+						texturePathStr += texturePath[j];
+				}
+
+				struct Texture tex;
+				tex.path = texturePathStr;
+				tex.type = texturePathStr.substr(texturePathStr.find_last_of('.') + 1, texturePathStr.length());
+				tex.id = i;
+				mesh.textures.push_back(tex);
+
+				if (verbose) {
+					cout << "Found Texture: " << texturePathStr << endl;
+				}
+
+				free(texturePath);
+			}
+
+			// Read Materials
+			current = yrRead(&materialCount, current, sizeof(int32_t));
+
+			for (int32_t i = 0; i < materialCount; ++i)
+			{
+				uint32_t materialNameLocalLength;
+				int8_t* materialNameLocal;
+
+				current = yrRead(&materialNameLocalLength, current, sizeof(uint32_t));
+				materialNameLocal = (int8_t*)malloc(sizeof(int8_t) * materialNameLocalLength);
+				current = yrRead(materialNameLocal, current, sizeof(int8_t) * materialNameLocalLength);
+
+				if (verbose) {
+					cout << "Material [" + i << "] : ";
+					for (uint32_t j = 0; j < materialNameLocalLength; ++j) {
+						// output ascii exclude '\t\n' & control characters
+						if (materialNameLocal[j] <= 0x7f && materialNameLocal[j] >= 0x20)
+							cout << materialNameLocal[j];
+					}
+					cout << endl;
+				}
+
+				uint32_t materialNameUniversalLength;
+				int8_t* materialNameUniversal;
+
+				current = yrRead(&materialNameUniversalLength, current, sizeof(uint32_t));
+				materialNameUniversal = (int8_t*)malloc(sizeof(int8_t) * materialNameUniversalLength);
+				current = yrRead(materialNameUniversal, current, sizeof(int8_t) * materialNameUniversalLength);
+
+				if (verbose) {
+					cout << "Material [" + i << "] : ";
+					for (uint32_t j = 0; j < materialNameUniversalLength; ++j) {
+						// output ascii exclude '\t\n' & control characters
+						if (materialNameUniversal[j] <= 0x7f && materialNameUniversal[j] >= 0x20)
+							cout << materialNameUniversal[j];
+					}
+					cout << endl;
+				}
+
+				float diffuseColour[4];
+				float specularColour[3];
+				float specularStrength;
+				float ambientColour[3];
+				int8_t drawingFlags;
+				float edgeColour[4];
+				float edgeScale;
+				int32_t textureIndex;
+				int32_t environmentIndex;
+				int8_t environentBlendMode;
+				int8_t toonReference;
+
+				// if toonReference is 1, toon value will be a byte reference toon01.bmp to toon10.bmp
+				// else, toon value will be a index
+				int32_t toonValue;
+
+				int32_t metaDataLength;
+				int8_t* metaData;
+
+				int32_t surfaceCount;
+
+				current = yrRead(&diffuseColour, current, sizeof(float) * 4);
+				current = yrRead(&specularColour, current, sizeof(float) * 3);
+				current = yrRead(&specularStrength, current, sizeof(float));
+				current = yrRead(&ambientColour, current, sizeof(float) * 3);
+				current = yrRead(&drawingFlags, current, sizeof(int8_t));
+				current = yrRead(&edgeColour, current, sizeof(float) * 4);
+				current = yrRead(&edgeScale, current, sizeof(float));
+				current = yrRead(&textureIndex, current,textureIndexSize);
+				current = yrRead(&environmentIndex, current, textureIndexSize);
+				current = yrRead(&environentBlendMode, current, sizeof(int8_t));
+
+				current = yrRead(&toonReference, current, sizeof(int8_t));
+				
+				if (toonReference == 1) {
+					current = yrRead(&toonValue, current, sizeof(int8_t));
+				}
+				else {
+					current = yrRead(&toonValue, current, materialIndexSize);
+				}
+
+				current = yrRead(&metaDataLength, current, sizeof(int32_t));
+				metaData = (int8_t*)malloc(sizeof(int8_t) * metaDataLength);
+				current = yrRead(metaData, current, sizeof(int8_t) * metaDataLength);
+
+				current = yrRead(&surfaceCount, current, sizeof(int32_t));
+
+				struct Material mat;
+
+				mat.diffuse = glm::vec4(diffuseColour[0], diffuseColour[1], diffuseColour[2], diffuseColour[3]);
+				mat.specular = glm::vec3(specularColour[0], specularColour[1], specularColour[2]);
+				mat.gloss = specularStrength;
+				mat.ambient = glm::vec3(ambientColour[0], ambientColour[1], ambientColour[2]);
+				mat.edgeColor = glm::vec3(edgeColour[0], edgeColour[1], edgeColour[2]);
+				mat.edgeScale = edgeScale;
+				mat.textureIndex = textureIndex;
+				mat.envMapIndex = environmentIndex;
+				mat.surfaceCount = surfaceCount;
+				mesh.materials.push_back(mat);
+			}
+
+			// No Support For Bone, Morph, Display Frame, Rigid Body, Soft Bidy, etc.
 		}
 
 		void DebugObj(Mesh mesh)
@@ -310,6 +431,11 @@ namespace yr
 		// Surface Data
 		int32_t surfaceCount;
 
+		// Texture Data
+		int32_t textureCount;
+
+		// Texture Data
+		int32_t materialCount;
 	};
 
 }

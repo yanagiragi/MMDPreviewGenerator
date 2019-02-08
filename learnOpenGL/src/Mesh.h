@@ -34,12 +34,27 @@ struct Texture {
     string path;
 };
 
+struct Material {
+	glm::vec4 diffuse;
+	glm::vec3 specular;
+	glm::vec3 ambient;
+	glm::vec3 edgeColor;
+	float gloss;
+	float edgeScale;
+
+	// toon value
+	unsigned int textureIndex;
+	unsigned int envMapIndex;
+	unsigned int surfaceCount;
+};
+
 class Mesh {
 public:
     /*  Mesh Data  */
     vector<Vertex> vertices;
     vector<unsigned int> indices;
     vector<Texture> textures;
+	vector<Material> materials;
 
 	Mesh()
 	{

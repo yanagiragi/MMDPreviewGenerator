@@ -72,7 +72,6 @@ class Model
 				default:
 					break;
 			}
-
 		}
 
 		void LoadPMX(FILE *fs, bool verbose = false)

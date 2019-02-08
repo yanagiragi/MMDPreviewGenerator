@@ -1,6 +1,9 @@
 ﻿#ifndef BEHAVIOUR_H
 #define BEHAVIOUR_H
 
+#include <windows.h>
+#include <gl/GL.h>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -87,7 +90,20 @@ class Behaviour
 			glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, &MVP[0][0]);
 
 			glBindVertexArray(VAO);
-			glDrawElements(GL_TRIANGLES, ppk.mesh.indices.size(), GL_UNSIGNED_INT, 0);
+			// glDrawElements(GL_TRIANGLES, ppk.mesh.indices.size(), GL_UNSIGNED_INT, 0);
+
+		/*	for (int i = 0; i < ppk.mesh.indices.size(); i += 3) {
+				int index0 = ppk.mesh.indices[i];
+				int index1 = ppk.mesh.indices[i + 1];
+				int index2 = ppk.mesh.indices[i + 2];
+
+				glBegin(GL_TRIANGLES);
+				glVertex3f(ppk.mesh.vertices[index0].Position.x, ppk.mesh.vertices[index0].Position.y, ppk.mesh.vertices[index0].Position.z);
+				glVertex3f(ppk.mesh.vertices[index1].Position.x, ppk.mesh.vertices[index1].Position.y, ppk.mesh.vertices[index1].Position.z);
+				glVertex3f(ppk.mesh.vertices[index2].Position.x, ppk.mesh.vertices[index2].Position.y, ppk.mesh.vertices[index2].Position.z);
+				glEnd();
+			}*/
+
 		}
 
 		// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly

@@ -39,7 +39,7 @@ class Camera
 		glm::mat4 getP()
 		{
 			float fov = 45.0f;
-			float aspect = 1920.0 / 1440.0f; 
+			float aspect = GlobalConfigs::aspect;
 			float nearDistance = 0.1f;
 			float farDistance = 1000.0f;
 			return glm::perspective(glm::radians(fov), aspect, nearDistance, farDistance);

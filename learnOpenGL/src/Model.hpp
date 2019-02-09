@@ -1,5 +1,5 @@
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef MODEL_HPP
+#define MODEL_HPP
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -213,6 +213,18 @@ class Model
 				if (texType == "bmp")
 				{
 					format = GL_BGR;
+				}
+				else if (texType == "jpg")
+				{
+					format = (n == 4 ? GL_RGBA : GL_RGB);
+				}
+				else if (texType == "jpeg")
+				{
+					format = (n == 4 ? GL_RGBA : GL_RGB);
+				}
+				else if (texType == "PNG")
+				{
+					format = (n == 4 ? GL_RGBA : GL_RGB);
 				}
 				else if (texType == "png")
 				{

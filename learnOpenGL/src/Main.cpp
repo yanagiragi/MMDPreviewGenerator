@@ -1,16 +1,13 @@
-#include <glad/glad.h>
+﻿#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include "Configs.hpp"
 
 #include <iostream>
 #include "Shader.h"
 #include "Behaviour.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-
-// settings
-const unsigned int SCR_WIDTH = 1920;
-const unsigned int SCR_HEIGHT = 1440;
-const char* SCR_NAME = "LearnOpenGL";
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -20,7 +17,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
-int main()
+int main(int argc, char** argv)
 {
 	// glfw: initialize and configure
 	glfwInit();
@@ -30,13 +27,15 @@ int main()
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
 
 	// glfw window creation
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, SCR_NAME, NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(GlobalConfigs::width, GlobalConfigs::height, GlobalConfigs::windowName, NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
+
+	glfwHideWindow(window);
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
@@ -47,9 +46,12 @@ int main()
 		return -1;
 	}
 
-	Behaviour mono = Behaviour();
 	
+	// Init before create window
+	Behaviour mono = Behaviour("");
 	mono.Start();
+
+	glfwShowWindow(window);
 
 	// render loop
 	while (!glfwWindowShouldClose(window))

@@ -8,7 +8,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Shader.h"
-#include "Model.h"
+#include "Model.hpp"
 #include "Camera.hpp"
 
 class Behaviour 
@@ -27,11 +27,27 @@ class Behaviour
 		unsigned int fragmentShader;
 		unsigned int shaderProgram;
 
-		Model ppk = Model("D:\\_Repository\\Github Projects\\MMDPreviewGenerator\\learnOpenGL\\Resources\\haku\\haku.pmx");
-
-		Camera mainCamera = Camera();
-
+		// std::string modelPath = "C:\\Users\\cg-lab\\Desktop\\8\\8.pmx";
+		/*modelPath = "D:\\_Repo\\Github\\MMDPreviewGenerator\\learnOpenGL\\Resources\\PPK\\OMN.pmx";
+		modelPath = "D:\\_Repo\\Github\\MMDPreviewGenerator\\learnOpenGL\\Resources\\PPK\\pop.pmx";
+		modelPath = "D:\\_Repo\\Github\\MMDPreviewGenerator\\learnOpenGL\\Resources\\TDA\ China\ Dress\ Yan\ He\ Canary\ Ver1.00\\haku.pmx";
+		std::cout << "File Name = " << modelPath << std::endl;*/
 		
+		//std::string modelPath = "D:\\_Repo\\Github\\MMDPreviewGenerator\\learnOpenGL\\Resources\\PPK\\pop.pmx";
+		//std::string modelPath = "D:\\_Repo\\Github\\MMDPreviewGenerator\\learnOpenGL\\Resources\\PPK\\pop.pmx";
+		
+		// hack = 2
+		// std::string modelPath = "D:\\_Repo\\Github\\MMDPreviewGenerator\\learnOpenGL\\Resources\\TDA\ China\ Dress\ Yan\ He\ Canary\ Ver1.00\\haku.pmx";;
+
+		string modelPath = "C:\\Users\\cg-lab\\Desktop\\8\\82.pmx";
+
+		Model model = Model(this->modelPath);;
+		Camera mainCamera = Camera();		
+
+		Behaviour(const string str)
+		{
+			this->modelPath = str;
+		}
 
 		// Prepare data
 		void Behaviour :: Start()
@@ -47,10 +63,11 @@ class Behaviour
 			generator.CreateShader(fragmentShader, GL_FRAGMENT_SHADER, generator.LoadRawShader("shaders/simple.frag").c_str());
 			generator.CreateProgram(shaderProgram, 2, vertexShader, fragmentShader);
 
-			// create buffers/arrays
-			ppk.SetupMeshes(VAOs, VBOs, EBOs);
+			// create buffers/arrays			
+			model.SetupMeshes(VAOs, VBOs, EBOs);
+			model.SetupTextures(texIDs);
 
-			ppk.SetupTextures(texIDs);
+			cout << "=============== END ================" << endl;
 		}
 
 		
@@ -84,7 +101,7 @@ class Behaviour
 
 			for (int i = 0; i < VAOs.size(); ++i)
 			{
-				Material mat = ppk.splittedMaterials[i];
+				Material mat = model.splittedMaterials[i];
 
 				glUniform4f(diffuseColorLocation, mat.diffuse.r, mat.diffuse.g, mat.diffuse.b, mat.diffuse.a);
 				glUniform3f(specularColorLocation, mat.specular.r, mat.specular.g, mat.specular.b);
@@ -97,15 +114,6 @@ class Behaviour
 					glBindTexture(GL_TEXTURE_2D, NULL);
 				}
 				else {
-					if (mat.textureIndex >= texIDs.size())
-					{
- 						cout << "a" << endl;
-					}
-					if (i >= 63)
-					{
-						cout << "a" << endl;
-					}
-					
 					unsigned int texID = texIDs[mat.textureIndex];
 					
 					glActiveTexture(GL_TEXTURE0);
@@ -120,23 +128,10 @@ class Behaviour
 				glUniform1i(mainTexLocation, 0);
 
 				glBindVertexArray(VAOs[i]);
-				glDrawElements(GL_TRIANGLES, ppk.splittedMeshs[i].indices.size(), GL_UNSIGNED_INT, 0);
+				glDrawElements(GL_TRIANGLES, model.splittedMeshs[i].indices.size(), GL_UNSIGNED_INT, 0);
 			}
 
 			glBindTexture(GL_TEXTURE_2D, NULL);
-			
-			/*for (int i = 0; i < ppk.mesh.indices.size(); i += 3) {
-				int index0 = ppk.mesh.indices[i];
-				int index1 = ppk.mesh.indices[i + 1];
-				int index2 = ppk.mesh.indices[i + 2];
-
-				glBegin(GL_TRIANGLES);
-				glVertex3f(ppk.mesh.vertices[index0].Position.x, ppk.mesh.vertices[index0].Position.y, ppk.mesh.vertices[index0].Position.z);
-				glVertex3f(ppk.mesh.vertices[index1].Position.x, ppk.mesh.vertices[index1].Position.y, ppk.mesh.vertices[index1].Position.z);
-				glVertex3f(ppk.mesh.vertices[index2].Position.x, ppk.mesh.vertices[index2].Position.y, ppk.mesh.vertices[index2].Position.z);
-				glEnd();
-			}*/
-
 		}
 
 		// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -146,9 +141,9 @@ class Behaviour
 				glfwSetWindowShouldClose(window, true);
 
 			if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-				mainCamera.eyez += mainCamera.step;
-			else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 				mainCamera.eyez -= mainCamera.step;
+			else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+				mainCamera.eyez += mainCamera.step;
 			else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 				mainCamera.eyex -= mainCamera.step;
 			else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
@@ -159,13 +154,13 @@ class Behaviour
 				mainCamera.eyey -= mainCamera.step;
 
 			else if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
-				mainCamera.eyet += mainCamera.step;
-			else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
-				mainCamera.eyet -= mainCamera.step;
-			else if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
-				mainCamera.eyep -= mainCamera.step;
-			else if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
 				mainCamera.eyep += mainCamera.step;
+			else if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+				mainCamera.eyep -= mainCamera.step;
+			else if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+				mainCamera.eyet -= mainCamera.step;
+			else if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)
+				mainCamera.eyet += mainCamera.step;
 			
 		}
 

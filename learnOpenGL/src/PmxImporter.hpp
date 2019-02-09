@@ -47,6 +47,26 @@ namespace yr
 			return Src + size;
 		}
 
+		int32_t formIndex(int32_t index, int8_t indexSize)
+		{
+			switch (indexSize)
+			{
+				case 1:
+					index = static_cast<int8_t>(index);
+					break;
+				case 2:
+					index = static_cast<int16_t>(index);
+					break;
+				case 4:
+					index = static_cast<int32_t>(index);
+					break;
+				default:
+					break;
+			}
+
+			return index;
+		}
+
 		void PmxImporter::Load(Mesh &mesh)
 		{
 			fseek(fs, 0, SEEK_END);
@@ -138,9 +158,10 @@ namespace yr
 
 			current = yrRead(&vertexCount, current, sizeof(int32_t));
 
+			cout << "Vertex Count = " << vertexCount << endl;
 
 			// hacks
-			const int vertexIndexSizeForDeform = vertexIndexSize / 2;
+			const int vertexIndexSizeForDeform = vertexIndexSize;// / 2;
 
 			const int sizeOfBDEF1 = vertexIndexSizeForDeform;
 			const int sizeOfBDEF2 = vertexIndexSizeForDeform * 2 + sizeof(float) * 1;
@@ -215,16 +236,21 @@ namespace yr
 			// read face data
 			current = yrRead(&surfaceCount, current, sizeof(int32_t));
 
+			cout << "Surface Count = " << surfaceCount << endl;
+
 			for (int32_t i = 0; i < surfaceCount; ++i)
 			{
 				int32_t index;
 				current = yrRead(&index, current, vertexIndexSize);
+				index = formIndex(index, vertexIndexSize);
 				mesh.indices.push_back(static_cast<unsigned int>(index));
 			}
 
 			// Read Texture
 			current = yrRead(&textureCount, current, sizeof(int32_t));
 			
+			cout << "Texture Count = " << textureCount << endl;
+
 			for (int32_t i = 0; i < textureCount; ++i)
 			{
 				int8_t* texturePath;
@@ -242,7 +268,11 @@ namespace yr
 
 				struct Texture tex;
 				tex.path = texturePathStr;
-				tex.type = texturePathStr.substr(texturePathStr.find_last_of('.') + 1, texturePathStr.length());
+				string type = texturePathStr.substr(texturePathStr.find_last_of('.') + 1, texturePathStr.length());
+				std::transform(type.begin(), type.end(), type.begin(), ::tolower);
+
+				tex.type = type;
+
 				tex.id = i;
 				mesh.textures.push_back(tex);
 
@@ -255,6 +285,8 @@ namespace yr
 
 			// Read Materials
 			current = yrRead(&materialCount, current, sizeof(int32_t));
+			
+			cout << "Material Count = " << materialCount << endl;
 
 			for (int32_t i = 0; i < materialCount; ++i)
 			{
@@ -374,6 +406,7 @@ namespace yr
 			}
 
 			// No Support For Bone, Morph, Display Frame, Rigid Body, Soft Bidy, etc.
+			DebugObj(mesh);
 		}
 
 		void DebugObj(Mesh mesh)

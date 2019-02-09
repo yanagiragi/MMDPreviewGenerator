@@ -105,7 +105,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\_Repository\Github Projects\MMDPreviewGenerator\learnOpenGL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\_Repo\Github\MMDPreviewGenerator\learnOpenGL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,18 +149,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="src\Behaviour.hpp" />
     <ClInclude Include="src\Camera.hpp" />
+    <ClInclude Include="src\Configs.hpp" />
     <ClInclude Include="src\Mesh.h" />
-    <ClInclude Include="src\Model.h" />
+    <ClInclude Include="src\Model.hpp" />
     <ClInclude Include="src\Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\glad.c" />
-    <ClCompile Include="src\learnOpenGL.cpp" />
+    <ClCompile Include="src\Main.cpp" />
     <ClCompile Include="src\PmxImporter.hpp" />
     <ClCompile Include="src\Shader.cpp" />
   </ItemGroup>

@@ -15,6 +15,14 @@ class Behaviour
 {
 	public:
 		unsigned int VAO, VBO, EBO;
+
+		vector<unsigned int> VAOs;
+		vector<unsigned int> VBOs;
+		vector<unsigned int> EBOs;
+
+		// use int instead of unsigned to use special value -1
+		vector<int> texIDs;
+
 		unsigned int vertexShader;
 		unsigned int fragmentShader;
 		unsigned int shaderProgram;
@@ -22,6 +30,8 @@ class Behaviour
 		Model ppk = Model("D:\\_Repository\\Github Projects\\MMDPreviewGenerator\\learnOpenGL\\Resources\\haku\\haku.pmx");
 
 		Camera mainCamera = Camera();
+
+		
 
 		// Prepare data
 		void Behaviour :: Start()
@@ -38,48 +48,31 @@ class Behaviour
 			generator.CreateProgram(shaderProgram, 2, vertexShader, fragmentShader);
 
 			// create buffers/arrays
-			glGenVertexArrays(1, &VAO);
-			glGenBuffers(1, &VBO);
-			glGenBuffers(1, &EBO);
+			ppk.SetupMeshes(VAOs, VBOs, EBOs);
 
-			glBindVertexArray(VAO);
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferData(GL_ARRAY_BUFFER, ppk.mesh.vertices.size() * sizeof(Vertex), &ppk.mesh.vertices[0], GL_STATIC_DRAW);
-
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, ppk.mesh.indices.size() * sizeof(unsigned int), &ppk.mesh.indices[0], GL_STATIC_DRAW);
-
-			// set the vertex attribute pointers
-			// vertex Positions
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
-			// vertex normals
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
-			// vertex texture coords
-			glEnableVertexAttribArray(2);
-			glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
-			// vertex tangent
-			glEnableVertexAttribArray(3);
-			glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
-			// vertex bitangent
-			glEnableVertexAttribArray(4);
-			glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
-
-			glBindVertexArray(0);
-
+			ppk.SetupTextures(texIDs);
 		}
 
+		
 		void Behaviour :: Update()
 		{
 			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 			glEnable(GL_DEPTH_TEST);
+			glEnable(GL_TEXTURE_2D);
+
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 			glUseProgram(shaderProgram);
 			
 			int MVPLocation = glGetUniformLocation(shaderProgram, "MVP");
+			int diffuseColorLocation = glGetUniformLocation(shaderProgram, "diffuseColor");
+			int specularColorLocation = glGetUniformLocation(shaderProgram, "specularColor");
+			int glossLocation = glGetUniformLocation(shaderProgram, "gloss");
+			int ambientColorLocation = glGetUniformLocation(shaderProgram, "ambientColor");
+			int mainTexLocation = glGetUniformLocation(shaderProgram, "mainTex");
 
 			glm::mat4 M(1.0f);
 			//M = glm::translate(M, glm::vec3(0, -10, -25));
@@ -89,10 +82,50 @@ class Behaviour
 
 			glUniformMatrix4fv(MVPLocation, 1, GL_FALSE, &MVP[0][0]);
 
-			glBindVertexArray(VAO);
-			glDrawElements(GL_TRIANGLES, ppk.mesh.indices.size(), GL_UNSIGNED_INT, 0);
+			for (int i = 0; i < VAOs.size(); ++i)
+			{
+				Material mat = ppk.splittedMaterials[i];
 
-		/*	for (int i = 0; i < ppk.mesh.indices.size(); i += 3) {
+				glUniform4f(diffuseColorLocation, mat.diffuse.r, mat.diffuse.g, mat.diffuse.b, mat.diffuse.a);
+				glUniform3f(specularColorLocation, mat.specular.r, mat.specular.g, mat.specular.b);
+				glUniform1f(glossLocation, mat.gloss);
+				glUniform3f(ambientColorLocation, mat.ambient.r, mat.ambient.g, mat.ambient.b);
+
+				if (mat.textureIndex == -1)
+				{
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, NULL);
+				}
+				else {
+					if (mat.textureIndex >= texIDs.size())
+					{
+ 						cout << "a" << endl;
+					}
+					if (i >= 63)
+					{
+						cout << "a" << endl;
+					}
+					
+					unsigned int texID = texIDs[mat.textureIndex];
+					
+					glActiveTexture(GL_TEXTURE0);
+					
+					if(texID == -1)
+						glBindTexture(GL_TEXTURE_2D, NULL);
+					else
+						glBindTexture(GL_TEXTURE_2D, texID);
+				}
+
+				// GL_TEXTURE0
+				glUniform1i(mainTexLocation, 0);
+
+				glBindVertexArray(VAOs[i]);
+				glDrawElements(GL_TRIANGLES, ppk.splittedMeshs[i].indices.size(), GL_UNSIGNED_INT, 0);
+			}
+
+			glBindTexture(GL_TEXTURE_2D, NULL);
+			
+			/*for (int i = 0; i < ppk.mesh.indices.size(); i += 3) {
 				int index0 = ppk.mesh.indices[i];
 				int index1 = ppk.mesh.indices[i + 1];
 				int index2 = ppk.mesh.indices[i + 2];

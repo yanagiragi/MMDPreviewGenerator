@@ -43,8 +43,12 @@ struct Material {
 	float edgeScale;
 
 	// toon value
-	unsigned int textureIndex;
-	unsigned int envMapIndex;
+
+	// avoid using unsigned int
+	// since texId may equal to -1 for "No Texture"
+	int textureIndex;
+	int envMapIndex;
+	
 	unsigned int surfaceCount;
 };
 

@@ -347,9 +347,29 @@ namespace yr
 				mat.ambient = glm::vec3(ambientColour[0], ambientColour[1], ambientColour[2]);
 				mat.edgeColor = glm::vec3(edgeColour[0], edgeColour[1], edgeColour[2]);
 				mat.edgeScale = edgeScale;
-				mat.textureIndex = textureIndex;
-				mat.envMapIndex = environmentIndex;
-				mat.surfaceCount = surfaceCount;
+				
+				switch (textureIndexSize)
+				{
+					case 1:
+						textureIndex = static_cast<int8_t>(textureIndex);
+						environmentIndex = static_cast<int8_t>(environmentIndex);
+						break;
+					case 2:
+						textureIndex = static_cast<int16_t>(textureIndex); 
+						environmentIndex = static_cast<int16_t>(environmentIndex);
+						break;
+					case 4:
+						textureIndex = static_cast<int32_t>(textureIndex); 
+						environmentIndex = static_cast<int32_t>(environmentIndex);
+						break;
+					default:
+						break;
+				}
+
+				mat.textureIndex = static_cast<int>(textureIndex);
+				mat.envMapIndex = static_cast<int>(environmentIndex);
+				mat.surfaceCount = static_cast<unsigned int>(surfaceCount);
+				
 				mesh.materials.push_back(mat);
 			}
 

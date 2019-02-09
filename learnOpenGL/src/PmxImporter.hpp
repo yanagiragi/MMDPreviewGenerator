@@ -1,16 +1,16 @@
-#ifndef  _PMXIMPORTER_HPP
-#define  _PMXIMPORTER_HPP
+﻿#ifndef _PMXIMPORTER_HPP
+#define _PMXIMPORTER_HPP
 
-#include <iostream>
-
-#include "Mesh.h"
-
-#include <string>
-#include <vector>
-
-#include <algorithm>
+#include <locale>
+#include <codecvt>
 
 #include <cstdint>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <algorithm>
+
+#include "Mesh.h"
 
 using namespace std;
 
@@ -104,7 +104,7 @@ namespace yr
 			current = yrRead(&modelNameLocalLength, current, sizeof(uint32_t));			
 			modelNameLocal = (int8_t*)malloc(sizeof(int8_t) * modelNameLocalLength);
 			current = yrRead(modelNameLocal, current, sizeof(int8_t) * modelNameLocalLength);
-			
+
 			if (verbose) {
 				cout << "Model Local Name: ";
 				for (uint32_t i = 0; i < modelNameLocalLength; ++i) {
@@ -224,10 +224,6 @@ namespace yr
 
 				mesh.vertices.push_back(vert);
 
-				if (verbose) {
-					cout << "Position [ " << i << "]: " << "(" << position[0] << ", " << position[1] << ", " << position[2] << ")" << endl;
-				}
-				
 				// clean malloc memory
 				free(weightDeform);
 				free(additionalVec4);
@@ -248,7 +244,7 @@ namespace yr
 
 			// Read Texture
 			current = yrRead(&textureCount, current, sizeof(int32_t));
-			
+
 			cout << "Texture Count = " << textureCount << endl;
 
 			for (int32_t i = 0; i < textureCount; ++i)
@@ -256,10 +252,17 @@ namespace yr
 				int8_t* texturePath;
 				uint32_t texturePathLength;
 				current = yrRead(&texturePathLength, current, sizeof(uint32_t));
-				texturePath = (int8_t*)malloc(sizeof(int8_t) * texturePathLength);
+				texturePath = (int8_t*)malloc(sizeof(int8_t) * texturePathLength + sizeof(int8_t));
 				current = yrRead(texturePath, current, sizeof(int8_t) * texturePathLength);
 
-				string texturePathStr = "";
+				wchar_t *wchartexturePath = (wchar_t*)malloc(sizeof(int8_t) * texturePathLength);
+				memcpy(wchartexturePath, texturePath, sizeof(int8_t) * texturePathLength);
+
+				wchartexturePath[sizeof(int8_t) * texturePathLength / sizeof(char16_t)] = L'\0';
+				
+				wstring wtexturePath = wstring(wchartexturePath);
+				
+				string texturePathStr;				
 				for (uint32_t j = 0; j < texturePathLength; ++j) {
 					// output ascii exclude '\t\n' & control characters
 					if (texturePath[j] <= 0x7f && texturePath[j] >= 0x20)
@@ -268,11 +271,7 @@ namespace yr
 
 				struct Texture tex;
 				tex.path = texturePathStr;
-				string type = texturePathStr.substr(texturePathStr.find_last_of('.') + 1, texturePathStr.length());
-				std::transform(type.begin(), type.end(), type.begin(), ::tolower);
-
-				tex.type = type;
-
+				tex.wpath = wtexturePath;
 				tex.id = i;
 				mesh.textures.push_back(tex);
 
@@ -280,6 +279,7 @@ namespace yr
 					cout << "Found Texture: " << texturePathStr << endl;
 				}
 
+				// free(wchartexturePath);
 				free(texturePath);
 			}
 
@@ -446,16 +446,6 @@ namespace yr
 
 		}
 
-	private:
-
-		bool verbose = false;
-		FILE* fs;
-
-		int8_t signature[4];	// "PMX "
-		float version;			// 2.0 or 2.1
-		int8_t globalsCount;	// fixed 8 for pmx 2.0
-		int8_t* globals;
-
 		// parse globals
 		int8_t textEncoding;
 		int8_t additionalVec4Count;
@@ -465,6 +455,16 @@ namespace yr
 		int8_t BoneIndexSize;
 		int8_t MorphIndexSize;
 		int8_t RigidbodyIndexSize;
+
+	private:
+
+		bool verbose = false;
+		FILE* fs;
+
+		int8_t signature[4];	// "PMX "
+		float version;			// 2.0 or 2.1
+		int8_t globalsCount;	// fixed 8 for pmx 2.0
+		int8_t* globals;
 
 		// text = int, byte[]
 		uint32_t  modelNameLocalLength;

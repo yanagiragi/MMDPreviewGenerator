@@ -1,6 +1,10 @@
 ﻿#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <io.h>
+#include <fcntl.h>
+#include <Windows.h>
+
 #include "Configs.hpp"
 
 #include <iostream>
@@ -19,6 +23,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 int main(int argc, char** argv)
 {
+	// _setmode(_fileno(stdout), _O_U16TEXT);
+
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -48,7 +54,7 @@ int main(int argc, char** argv)
 
 	
 	// Init before create window
-	Behaviour mono = Behaviour("");
+	Behaviour mono = Behaviour();
 	mono.Start();
 
 	glfwShowWindow(window);

@@ -1,9 +1,6 @@
 ﻿#ifndef BEHAVIOUR_H
 #define BEHAVIOUR_H
 
-//#include <windows.h>
-//#include <gl/GL.h>
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -39,14 +36,14 @@ class Behaviour
 		// hack = 2
 		// std::string modelPath = "D:\\_Repo\\Github\\MMDPreviewGenerator\\learnOpenGL\\Resources\\TDA\ China\ Dress\ Yan\ He\ Canary\ Ver1.00\\haku.pmx";;
 
-		string modelPath = "C:\\Users\\cg-lab\\Desktop\\8\\82.pmx";
+		wstring modelPath = L"C:\\Temp\\8\\8.pmx";
 
-		Model model = Model(this->modelPath);;
+		Model model = Model(this->modelPath);
 		Camera mainCamera = Camera();		
 
-		Behaviour(const string str)
+		Behaviour()
 		{
-			this->modelPath = str;
+
 		}
 
 		// Prepare data

@@ -6,8 +6,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// #include <learnopengl/shader.h>
-
 #include <string>
 #include <fstream>
 #include <sstream>
@@ -30,8 +28,8 @@ struct Vertex {
 
 struct Texture {
     unsigned int id;
-    string type;
     string path;
+	wstring wpath;
 };
 
 struct Material {

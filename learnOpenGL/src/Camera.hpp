@@ -8,7 +8,7 @@ class Camera
 {
 
 	public:
-		const float M_PI = 3.14;
+		const float M_PI = 3.14f;
 
 		float eyex = 0.0;
 		float eyey = 0.0;
@@ -16,7 +16,7 @@ class Camera
 		float eyet = 0.0;	//theta in degree
 		float eyep = 90.0;	//phi in degree
 
-		float step = 0.1;
+		float step = 0.1f;
 
 		Camera()
 		{

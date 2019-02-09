@@ -4,10 +4,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#define STBI_WINDOWS_UTF8
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image/stb_image.h>
-
-#include <iostream>
 
 #include "mesh.h"
 #include "PmxImporter.hpp"
@@ -25,31 +25,46 @@ class Model
 			LENGTH
 		};
 
-		const string enumString[4] = { "PMX", "PMD", "X", "LENGTH" };
+		const wstring enumString[4] = { L"PMX", L"PMD", L"X", L"LENGTH" };
 		
-		string path;
-		string directory;
+		wstring path;
+		wstring directory;
 
 		Mesh rawMesh;
 
 		vector <Mesh> splittedMeshs;
 		vector<Material> splittedMaterials;
 
-		inline bool exists(const std::string& name) {
-			struct stat buffer;
-			return (stat(name.c_str(), &buffer) == 0);
+		bool useWChar = false;
+
+		inline bool exists(const wchar_t *name) {
+			FILE * fs;
+			errno_t err = _wfopen_s(&fs, name, L"r");
+			if (!err) {
+				fclose(fs);
+				return true;
+			}
+			return false;
 		}
 
-		inline bool exists(const char *name) {
-			struct stat buffer;
-			return (stat(name, &buffer) == 0);
+		void tolower(wstring str)
+		{
+			std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+		}
+
+		wstring utf8_to_wString(string const utf8String)
+		{
+			wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
+			return converter.from_bytes(utf8String);
 		}
 
 		/*  Functions   */
 		// constructor, expects a filepath to a 3D model.
-		Model(string const &path)
+		Model(wstring const &c_path)
 		{ 
 			FILE *fs;
+
+			this->path = c_path;
 
 			// retrieve the directory path of the filepath
 			#ifdef  _WIN32
@@ -59,24 +74,27 @@ class Model
 			#endif //  _WIN32
 
 
-			errno_t err = fopen_s(&fs, path.c_str(), "r");
-			cout << "File Open: " << ((err != 0) ? "FAIL" : "PASS") << endl;
+			errno_t err = _wfopen_s(&fs, path.c_str(), L"r");
+			
+			wcout << L"Open File: " << this->path << endl;
+			cout << "Status: " << ((err != 0) ? "FAIL" : "PASS") << endl;
+			
 			if (err != 0) {
 				return;
 			}
 
-			string type = path.substr(path.find_last_of('.'), path.length());
-			std::transform(type.begin(), type.end(), type.begin(), ::tolower);
+			wstring type = path.substr(path.find_last_of('.'), path.length());
+			tolower(type);
 
 			MODELTYPE modelType = MODELTYPE::LENGTH;
-			if (type == ".pmx")
+			if (type == L".pmx")
 				modelType = MODELTYPE::PMX;
-			else if (type == ".pmd")
+			else if (type == L".pmd")
 				modelType = MODELTYPE::PMD;
-			else if (type == ".x")
+			else if (type == L".x")
 				modelType = MODELTYPE::X;
 
-			cout << "Model Type: " << type << "(" << enumString[static_cast<int>(modelType)] << ")" << endl;
+			wcout << L"Model Type: " << type << L"(" << enumString[static_cast<int>(modelType)] << L")" << endl;
 
 			switch (modelType)
 			{
@@ -92,10 +110,17 @@ class Model
 			}
 		}
 
+		~Model()
+		{
+			
+		}
+
 		void LoadPMX(FILE *fs, bool verbose = false)
 		{
-			yr::PmxImporter pmxImporter(fs, verbose);
+			yr::PmxImporter pmxImporter(fs, true);
 			pmxImporter.Load(this->rawMesh);
+
+			useWChar = pmxImporter.textEncoding == 0;
 
 			PostProcessPmx();
 		}
@@ -169,23 +194,40 @@ class Model
 		{
 			for (int i = 0; i < rawMesh.textures.size(); ++i) {
 				
-				string texPath = rawMesh.textures[i].path;
-				string texType = rawMesh.textures[i].type;
+				string texPath = rawMesh.textures[i].path;				
 
-				if (!exists(texPath)) {
-					texPath = directory + "\\" + texPath;
+				wstring widetexPath;
+				if (useWChar) {
+					widetexPath = rawMesh.textures[i].wpath;
+				}
+				else {
+					wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
+					widetexPath = converter.from_bytes(texPath);
+				}				
+
+				if (!exists(widetexPath.c_str())) {
+					wstring tmp = directory + L"\\" + widetexPath;
+					if (!exists(tmp.c_str())) {
+						wcout << L"Missing Texture: " + widetexPath << endl;
+						textureIDs.push_back(-1);
+						continue;
+					}
+					widetexPath = tmp;
 				}
 
-				if (!exists(texPath))
-				{
-					cout << "Missing Texture: " + rawMesh.textures[i].path << endl;
-					textureIDs.push_back(-1);
-					continue;
-				}
+				wstring texType = widetexPath.substr(widetexPath.find_last_of('.') + 1, widetexPath.length());
+				tolower(texType);
 
 				int w, h, n;
 
-				unsigned char *data = stbi_load(texPath.c_str(), &w, &h, &n, 0);
+				size_t bufferSize = 1024;
+				char* buffer = (char*)malloc(sizeof(char) * bufferSize);
+
+				int res = stbi_convert_wchar_to_utf8(buffer, bufferSize, widetexPath.c_str());
+
+				unsigned char *data = stbi_load(buffer, &w, &h, &n, 0);
+
+				free(buffer);
 
 				// Create one OpenGL texture
 				GLuint textureID;
@@ -210,27 +252,27 @@ class Model
 					cout << "Error When Parsing Texture Internal Format";
 				}
 
-				if (texType == "bmp")
+				if (texType == L"bmp")
 				{
 					format = GL_BGR;
 				}
-				else if (texType == "jpg")
+				else if (texType == L"jpg")
 				{
 					format = (n == 4 ? GL_RGBA : GL_RGB);
 				}
-				else if (texType == "jpeg")
+				else if (texType == L"jpeg")
 				{
 					format = (n == 4 ? GL_RGBA : GL_RGB);
 				}
-				else if (texType == "PNG")
+				else if (texType == L"PNG")
 				{
 					format = (n == 4 ? GL_RGBA : GL_RGB);
 				}
-				else if (texType == "png")
+				else if (texType == L"png")
 				{
 					format = (n == 4 ? GL_RGBA : GL_RGB);
 				}
-				else if (texType == "tga")
+				else if (texType == L"tga")
 				{
 					format = (n == 4 ? GL_RGBA : GL_RGB);
 				}
@@ -248,51 +290,10 @@ class Model
 				glBindTexture(GL_TEXTURE_2D, NULL);
 
 				textureIDs.push_back(textureID);
+
+				stbi_image_free(data);
 			}
 		}
-
-	private:
-		
-
-		/*unsigned int TextureFromFile(const char *path, const string &directory, bool gamma)
-		{
-			string filename = string(path);
-			filename = directory + '/' + filename;
-
-			unsigned int textureID;
-			glGenTextures(1, &textureID);
-
-			int width, height, nrComponents;
-			unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
-			if (data)
-			{
-				GLenum format;
-				if (nrComponents == 1)
-					format = GL_RED;
-				else if (nrComponents == 3)
-					format = GL_RGB;
-				else if (nrComponents == 4)
-					format = GL_RGBA;
-
-				glBindTexture(GL_TEXTURE_2D, textureID);
-				glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-				glGenerateMipmap(GL_TEXTURE_2D);
-
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-				stbi_image_free(data);
-			}
-			else
-			{
-				std::cout << "Texture failed to load at path: " << path << std::endl;
-				stbi_image_free(data);
-			}
-
-			return textureID;
-		}*/
 };
 
 #endif

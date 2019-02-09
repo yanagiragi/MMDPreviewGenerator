@@ -161,7 +161,7 @@ namespace yr
 			cout << "Vertex Count = " << vertexCount << endl;
 
 			// hacks
-			const int vertexIndexSizeForDeform = vertexIndexSize;// / 2;
+			const int vertexIndexSizeForDeform = 2;
 
 			const int sizeOfBDEF1 = vertexIndexSizeForDeform;
 			const int sizeOfBDEF2 = vertexIndexSizeForDeform * 2 + sizeof(float) * 1;

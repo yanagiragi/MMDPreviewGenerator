@@ -24,26 +24,20 @@ class Behaviour
 		unsigned int fragmentShader;
 		unsigned int shaderProgram;
 
-		// std::string modelPath = "C:\\Users\\cg-lab\\Desktop\\8\\8.pmx";
-		/*modelPath = "D:\\_Repo\\Github\\MMDPreviewGenerator\\learnOpenGL\\Resources\\PPK\\OMN.pmx";
-		modelPath = "D:\\_Repo\\Github\\MMDPreviewGenerator\\learnOpenGL\\Resources\\PPK\\pop.pmx";
-		modelPath = "D:\\_Repo\\Github\\MMDPreviewGenerator\\learnOpenGL\\Resources\\TDA\ China\ Dress\ Yan\ He\ Canary\ Ver1.00\\haku.pmx";
-		std::cout << "File Name = " << modelPath << std::endl;*/
-		
-		//std::string modelPath = "D:\\_Repo\\Github\\MMDPreviewGenerator\\learnOpenGL\\Resources\\PPK\\pop.pmx";
-		//std::string modelPath = "D:\\_Repo\\Github\\MMDPreviewGenerator\\learnOpenGL\\Resources\\PPK\\pop.pmx";
-		
 		// hack = 2
 		// std::string modelPath = "D:\\_Repo\\Github\\MMDPreviewGenerator\\learnOpenGL\\Resources\\TDA\ China\ Dress\ Yan\ He\ Canary\ Ver1.00\\haku.pmx";;
 
 		wstring modelPath = L"C:\\Temp\\8\\8.pmx";
+		//wstring modelPath = L"C:\\Temp\\符华玄衣素裳\\符华loli配布版.pmx";
+		//wstring modelPath = L"C:\\Temp\\PPK\\ポプ子.pmx";
+		//wstring modelPath = L"C:\\Temp\\haku\\haku.pmx";
 
 		Model model = Model(this->modelPath);
 		Camera mainCamera = Camera();		
 
 		Behaviour()
 		{
-
+				
 		}
 
 		// Prepare data

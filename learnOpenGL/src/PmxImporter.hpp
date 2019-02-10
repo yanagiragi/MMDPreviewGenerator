@@ -217,7 +217,7 @@ namespace yr
 				/****** Only Support Mesh for now ******/
 				struct Vertex vert;
 
-				vert.Position = glm::vec3(position[0], position[1], position[2]);
+				vert.Position = glm::vec3(-position[0], position[1], position[2]);
 				vert.Normal = glm::vec3(normal[0], normal[1], normal[2]);
 				vert.TexCoords = glm::vec2(uv[0], uv[1]);
 				vert.Tangent = glm::vec3(0, 0, 0);
@@ -724,13 +724,9 @@ namespace yr
 							break;
 					}
 				}
-
-				cout << "123" << endl;
 			}
 
-
 			// Display Frame, Rigid Body, Soft Bidy, etc.
-			DebugObj(mesh);
 		}
 
 		void DebugObj(Mesh mesh)

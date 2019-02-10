@@ -9,6 +9,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image/stb_image.h>
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image/stb_image_write.h>
+
 #include "mesh.h"
 #include "PmxImporter.hpp"
 
@@ -35,6 +38,8 @@ class Model
 		vector <Mesh> splittedMeshs;
 		vector<Material> splittedMaterials;
 
+		// flag for pmx text-encoding
+		// change after LoadPmx()
 		bool useWChar = false;
 
 		inline bool exists(const wchar_t *name) {
@@ -52,33 +57,36 @@ class Model
 			std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 		}
 
-		wstring utf8_to_wString(string const utf8String)
-		{
-			wstring_convert<codecvt_utf8_utf16<wchar_t>> converter;
-			return converter.from_bytes(utf8String);
-		}
-
 		/*  Functions   */
-		// constructor, expects a filepath to a 3D model.
-		Model(wstring const &c_path)
-		{ 
-			FILE *fs;
-
-			this->path = c_path;
-
+		// constructor, expects a filepath to a 3D model.		
+		Model()
+		{
+			this->path = GlobalConfigs::wfilenameBuffer;
+			
 			// retrieve the directory path of the filepath
 			#ifdef  _WIN32
 				directory = path.substr(0, path.find_last_of('\\'));
-			#else 
+			#else
 				directory = path.substr(0, path.find_last_of('/'));
 			#endif //  _WIN32
+			
+			Load();
+		}
 
+		~Model()
+		{
+			
+		}
+
+		void Load()
+		{
+			FILE *fs;
 
 			errno_t err = _wfopen_s(&fs, path.c_str(), L"r");
-			
+
 			wcout << L"Open File: " << this->path << endl;
 			cout << "Status: " << ((err != 0) ? "FAIL" : "PASS") << endl;
-			
+
 			if (err != 0) {
 				return;
 			}
@@ -98,21 +106,16 @@ class Model
 
 			switch (modelType)
 			{
-				case MODELTYPE::PMX:
-					LoadPMX(fs);
-					break;
-				case MODELTYPE::PMD:
-					break;
-				case MODELTYPE::X:
-					break;
-				default:
-					break;
+			case MODELTYPE::PMX:
+				LoadPMX(fs);
+				break;
+			case MODELTYPE::PMD:
+				break;
+			case MODELTYPE::X:
+				break;
+			default:
+				break;
 			}
-		}
-
-		~Model()
-		{
-			
 		}
 
 		void LoadPMX(FILE *fs, bool verbose = false)
@@ -220,14 +223,10 @@ class Model
 
 				int w, h, n;
 
-				size_t bufferSize = 1024;
-				char* buffer = (char*)malloc(sizeof(char) * bufferSize);
-
-				int res = stbi_convert_wchar_to_utf8(buffer, bufferSize, widetexPath.c_str());
+				char buffer[GlobalConfigs::wfilenameBufferLength * 2];
+				int res = stbi_convert_wchar_to_utf8(buffer, GlobalConfigs::wfilenameBufferLength * 2, widetexPath.c_str());
 
 				unsigned char *data = stbi_load(buffer, &w, &h, &n, 0);
-
-				free(buffer);
 
 				// Create one OpenGL texture
 				GLuint textureID;

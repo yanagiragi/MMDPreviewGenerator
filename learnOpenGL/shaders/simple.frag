@@ -19,8 +19,10 @@ void main()
 {
     vec4 albedo = texture2D(mainTex, uv);
 
-    albedo.a = albedo.a * diffuseColor.a;
+    // albedo.a = albedo.a * diffuseColor.a;
+    
+    // albedo *= diffuseColor;
 
-    FragColor = albedo;
+    FragColor = albedo * diffuseColor;
     
 }

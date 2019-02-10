@@ -18,12 +18,46 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
+	GlobalConfigs::width = width;
+	GlobalConfigs::height = height;
+	GlobalConfigs::aspect = (float)width / (float)height;
 	glViewport(0, 0, width, height);
 }
 
-int main(int argc, char** argv)
+void PrintHint()
 {
-	// _setmode(_fileno(stdout), _O_U16TEXT);
+	cout << 
+"\n================================\n\
+\nMMD Preview Generator \n\
+\nAuthor: yanagiragi \n\
+\n================================ \n\
+\nStorage: MMDPreviewGenerator.exe width height modelPath previewImageStorePath \n\
+\nExamples: MMDPreviewGenerator.exe 1920 1440 \"C:\\Temp\\8\\8.pmx\" \"C:\\Temp\\8\\8_preview.jpg\" \n\
+\n" << endl;
+}
+
+//int main(int argc, char** argv)
+int wmain(int argc, wchar_t **argv, wchar_t **envp)
+{
+	if (argc != 5) {
+		PrintHint();
+		return 1;
+	}
+	else {
+
+		GlobalConfigs::width = stoi(argv[1]);
+		GlobalConfigs::height = stoi(argv[2]);
+		GlobalConfigs::aspect = (float)GlobalConfigs::width / (float)GlobalConfigs::height;
+
+		if (wcslen(argv[3]) < GlobalConfigs::wfilenameBufferLength) {
+			wcsncpy(GlobalConfigs::wfilenameBuffer, argv[3], wcslen(argv[3]));
+		}
+
+		if (wcslen(argv[4]) < GlobalConfigs::wfilenameBufferLength) {
+			wcsncpy(GlobalConfigs::wStorePathBuffer, argv[4], wcslen(argv[4]));
+		}
+	}
+	
 
 	// glfw: initialize and configure
 	glfwInit();
@@ -50,8 +84,7 @@ int main(int argc, char** argv)
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
-	}
-
+	}	
 	
 	// Init before create window
 	Behaviour mono = Behaviour();
@@ -68,8 +101,11 @@ int main(int argc, char** argv)
 		// Main Render Function
 		mono.Update();
 
+		// mono.ScreenShot();
+
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);
+		
 		glfwPollEvents();
 	}
 

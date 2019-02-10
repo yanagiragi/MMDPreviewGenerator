@@ -162,7 +162,7 @@ namespace yr
 
 			// hacks
 			// fixed index size for int16_t
-			const int realVertexIndexSize = 2 * sizeof(int8_t);
+			int realVertexIndexSize = 2 *sizeof(int8_t);
 
 			const int sizeOfBDEF1 = realVertexIndexSize;
 			const int sizeOfBDEF2 = realVertexIndexSize * 2 + sizeof(float) * 1;
@@ -412,6 +412,9 @@ namespace yr
 				mesh.materials.push_back(mat);
 			}
 
+			// no bone, morpg for now
+			return;
+
 			// Read Bone
 			int32_t boneLength;
 			current = yrRead(&boneLength, current, sizeof(int32_t));
@@ -569,8 +572,9 @@ namespace yr
 			
 			// hacks
 			int8_t realMorphIndexSize = MorphIndexSize;
-
-			verbose = true;
+			// reset realVertexIndexSize to vertexIndexSize
+			// special hacks for "TDA China Princess Haku Ver 1.0\haku.pmx"
+			realVertexIndexSize = vertexIndexSize;
 
 			for (int32_t i = 0; i < morphLength; ++i)
 			{
@@ -707,6 +711,7 @@ namespace yr
 							//			mesh.materials[k].diffuse.a *= diffuseColour[4];
 							//	}
 							//}
+
 							break;
 						case 9: // version 2.1, Flip
 							throw new exception("Version 2.0 does not support morph type = flip!");

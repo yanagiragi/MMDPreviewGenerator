@@ -6,6 +6,7 @@
 //
 //#include <Magick++.h>
 
+
 #include "Shader.h"
 #include "Model.hpp"
 #include "Camera.hpp"
@@ -47,39 +48,19 @@ public:
 		memset(pixels, 0, GlobalConfigs::width * GlobalConfigs::height * format_nchannels * sizeof(GLubyte));
 
 		//glReadBuffer(frameBuffer);
-
 		// glPixelStorei(GL_PACK_ALIGNMENT, 1);
 		glReadPixels(0, 0, GlobalConfigs::width, GlobalConfigs::height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-
 		// glGetTexImage(renderedTexture, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
 
 		char storeFilePath[GlobalConfigs::wfilenameBufferLength * 2];
 		int result = stbiw_convert_wchar_to_utf8(storeFilePath, GlobalConfigs::wfilenameBufferLength * 2, GlobalConfigs::wStorePathBuffer);
 
-		// stbi_flip_vertically_on_write(1);			
+		stbi_flip_vertically_on_write(1);			
 		result = stbi_write_png(storeFilePath, GlobalConfigs::width, GlobalConfigs::height, format_nchannels, pixels, 0);
-
-		/*FILE *f = fopen((string(storeFilePath) + string(".ppm")).c_str(), "w");
-		int width = GlobalConfigs::width;
-		int height = GlobalConfigs::height;
-		fprintf(f, "P3\n%d\n%d\n%d\n", width, height, 255);
-		pixels = (GLubyte*)realloc(pixels, format_nchannels * sizeof(GLubyte) * width * height);
-		glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-		int cur = 0;
-		for (int i = 0; i < height; i++) {
-			for (int j = 0; j < width; j++) {
-				cur = format_nchannels * ((height - i - 1) * width + j);
-				fprintf(f, "%3d %3d %3d ", (pixels)[cur], (pixels)[cur + 1], (pixels)[cur + 2]);
-			}
-			fprintf(f, "\n");
-		}
-		fclose(f);*/
 
 		wcout << storeFilePath << " Stored." << endl;
 
 		free(pixels);
-
-		exit(0);
 	}
 
 	// Prepare data
@@ -101,7 +82,7 @@ public:
 		model.SetupTextures(texIDs);
 
 		// Render Texture Setup
-		glGenFramebuffers(1, &frameBuffer);
+		/*glGenFramebuffers(1, &frameBuffer);
 		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
 		glGenTextures(1, &renderedTexture);
@@ -116,17 +97,15 @@ public:
 			std::cout << "FrameBuffer Not Ready" << std::endl;
 
 		glBindFramebuffer(GL_FRAMEBUFFER, NULL);
-		glBindTexture(GL_TEXTURE_2D, NULL);
+		glBindTexture(GL_TEXTURE_2D, NULL);*/
 
 		cout << "=============== END ================" << endl;
 	}
 
 	void Behaviour::Update()
 	{
-		glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
-		// glLoadIdentity();
 
 		// glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
@@ -135,7 +114,7 @@ public:
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+		
 		glUseProgram(shaderProgram);
 
 		int MVPLocation = glGetUniformLocation(shaderProgram, "MVP");
@@ -187,18 +166,6 @@ public:
 
 		glBindFramebuffer(GL_FRAMEBUFFER, NULL);
 		glBindTexture(GL_TEXTURE_2D, NULL);
-
-		//GLubyte *pixels;
-		//pixels = (GLubyte*)malloc(sizeof(GLubyte) * GlobalConfigs::width * GlobalConfigs::height * 3);
-
-		//memset(pixels, 0, GlobalConfigs::width * GlobalConfigs::height * 3 * sizeof(GLubyte));
-
-		//// glGetTexImage(renderedTexture, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-		//glRasterPos2i(-1, -1);
-		//glDrawPixels(GlobalConfigs::width, GlobalConfigs::height, GL_RGB, GL_FLOAT, pixels);
-
-		//cout << "tick\n" << endl;
-
 	}
 
 	// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly

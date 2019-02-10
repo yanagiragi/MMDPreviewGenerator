@@ -65,6 +65,7 @@ int wmain(int argc, wchar_t **argv, wchar_t **envp)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // uncomment this statement to fix compilation on OS X
+	glfwWindowHint(GLFW_VISIBLE, 0);
 
 	// glfw window creation
 	GLFWwindow* window = glfwCreateWindow(GlobalConfigs::width, GlobalConfigs::height, GlobalConfigs::windowName, NULL, NULL);
@@ -90,10 +91,10 @@ int wmain(int argc, wchar_t **argv, wchar_t **envp)
 	Behaviour mono = Behaviour();
 	mono.Start();
 
-	glfwShowWindow(window);
+	// glfwShowWindow(window);
 
 	// render loop
-	while (!glfwWindowShouldClose(window))
+	//while (!glfwWindowShouldClose(window))
 	{
 		// Deal Input
 		mono.Input(window);
@@ -101,7 +102,7 @@ int wmain(int argc, wchar_t **argv, wchar_t **envp)
 		// Main Render Function
 		mono.Update();
 
-		// mono.ScreenShot();
+		mono.ScreenShot();
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);

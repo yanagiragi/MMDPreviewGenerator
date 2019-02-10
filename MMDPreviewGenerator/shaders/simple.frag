@@ -1,7 +1,7 @@
 #version 330 core
 
 in vec2 uv;
-in vec4 normalColor;
+in vec3 normalColor;
 
 uniform vec4 ourColor;
 

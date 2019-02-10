@@ -58,7 +58,6 @@ int wmain(int argc, wchar_t **argv, wchar_t **envp)
 		}
 	}
 	
-
 	// glfw: initialize and configure
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -76,9 +75,9 @@ int wmain(int argc, wchar_t **argv, wchar_t **envp)
 		return -1;
 	}
 
-	glfwHideWindow(window);
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwHideWindow(window);
 
 	// glad: load all OpenGL function pointers
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -91,7 +90,8 @@ int wmain(int argc, wchar_t **argv, wchar_t **envp)
 	Behaviour mono = Behaviour();
 	mono.Start();
 
-	// glfwShowWindow(window);
+	// remove comment to force resolution without occlusion
+	//glfwShowWindow(window);
 
 	// render loop
 	//while (!glfwWindowShouldClose(window))

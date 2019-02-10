@@ -656,7 +656,7 @@ namespace yr
 							break;
 						case 8: // Matreial
 							int32_t materialIndex;
-							int8_t IsMultiplicative; //  0 for multiplicative, non-zero for additive
+							int8_t IsNotMultiplicative; //  0 for multiplicative, non-zero for additive
 
 							float diffuseColour[4];
 							float specularColour[3];
@@ -669,7 +669,7 @@ namespace yr
 							float toonTint[4];
 							current = yrRead(&materialIndex, current, realMaterialIndexSize);
 							materialIndex = formIndex(materialIndex, realMaterialIndexSize);
-							current = yrRead(&IsMultiplicative, current, sizeof(int8_t));
+							current = yrRead(&IsNotMultiplicative, current, sizeof(int8_t));
 							current = yrRead(&diffuseColour, current, sizeof(float) * 4);
 							current = yrRead(&specularColour, current, sizeof(float) * 3);
 							current = yrRead(&specularStrength, current, sizeof(float));
@@ -680,9 +680,33 @@ namespace yr
 							current = yrRead(&environmentTint, current, sizeof(float) * 4);
 							current = yrRead(&toonTint, current, sizeof(float) * 4);
 
-							// Do Something with the material
-							// mesh.materials[materialIndex].diffuse.a = diffuseColour[3];
-
+							// Do Something with the material, no use for now
+							//if (materialIndex != -1)
+							//{
+							//	// is multi
+							//	if (j == 0) {
+							//		if(IsNotMultiplicative)
+							//			mesh.materials[materialIndex].diffuse.a += diffuseColour[4];
+							//		else
+							//			mesh.materials[materialIndex].diffuse.a *= diffuseColour[4];
+							//	}
+							//		
+							//	else {
+							//		if (IsNotMultiplicative)
+							//			mesh.materials[materialIndex].diffuse.a += diffuseColour[4];
+							//		else
+							//			mesh.materials[materialIndex].diffuse.a *= diffuseColour[4];
+							//	}
+							//}
+							//else {
+							//	for (int k = 0; k < mesh.materials.size(); ++k)
+							//	{
+							//		if (IsNotMultiplicative)
+							//			mesh.materials[k].diffuse.a += diffuseColour[4];
+							//		else
+							//			mesh.materials[k].diffuse.a *= diffuseColour[4];
+							//	}
+							//}
 							break;
 						case 9: // version 2.1, Flip
 							throw new exception("Version 2.0 does not support morph type = flip!");

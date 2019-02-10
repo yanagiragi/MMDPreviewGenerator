@@ -19,6 +19,8 @@ void main()
 {
     vec4 albedo = texture2D(mainTex, uv);
 
+    albedo.a = albedo.a * diffuseColor.a;
+
     FragColor = albedo;
-    // FragColor = vec4(1,1,1,1);
+    
 }

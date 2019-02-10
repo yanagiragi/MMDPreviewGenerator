@@ -31,8 +31,8 @@ void PrintHint()
 \nMMD Preview Generator \n\
 \nAuthor: yanagiragi \n\
 \n================================ \n\
-\Usage: MMDPreviewGenerator.exe width height modelPath previewImageStorePath \n\
-\nExamples: MMDPreviewGenerator.exe 1920 1440 \"C:\\Temp\\8\\8.pmx\" \"C:\\Temp\\8\\8_preview.jpg\" \n\
+\nUsage: MMDPreviewGenerator.exe width height modelPath previewImageStorePath \n\
+\nExamples: MMDPreviewGenerator.exe 1920 1440 \"C:\\Temp\\8\\8.pmx\" \"C:\\Temp\\8\\8_preview.png\" \n\
 \n" << endl;
 }
 

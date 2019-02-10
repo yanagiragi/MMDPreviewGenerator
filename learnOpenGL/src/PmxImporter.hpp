@@ -412,8 +412,6 @@ namespace yr
 				mesh.materials.push_back(mat);
 			}
 
-			return ;
-
 			// Read Bone
 			int32_t boneLength;
 			current = yrRead(&boneLength, current, sizeof(int32_t));
@@ -570,7 +568,7 @@ namespace yr
 			current = yrRead(&morphLength, current, sizeof(int32_t));
 			
 			// hacks
-			int8_t realMorphIndexSize = 2;
+			int8_t realMorphIndexSize = MorphIndexSize;
 
 			verbose = true;
 
@@ -626,7 +624,7 @@ namespace yr
 							int32_t groupIndex;
 							float influence;
 							current = yrRead(&groupIndex, current, realMorphIndexSize);
-							groupIndex = formIndex(groupIndex, realVertexIndexSize);
+							groupIndex = formIndex(groupIndex, realMorphIndexSize);
 							current = yrRead(&influence, current, sizeof(float));
 							break;
 						case 1: // Vertex
@@ -654,7 +652,7 @@ namespace yr
 							float floats[4];
 							current = yrRead(&UVVertexIndex, current, realVertexIndexSize);
 							UVVertexIndex = formIndex(UVVertexIndex, realVertexIndexSize);
-							current = yrRead(translation, current, sizeof(float) * 4);
+							current = yrRead(floats, current, sizeof(float) * 4);
 							break;
 						case 8: // Matreial
 							int32_t materialIndex;

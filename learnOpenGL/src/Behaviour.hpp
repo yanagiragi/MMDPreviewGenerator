@@ -27,9 +27,9 @@ class Behaviour
 		// hack = 2
 		// std::string modelPath = "D:\\_Repo\\Github\\MMDPreviewGenerator\\learnOpenGL\\Resources\\TDA\ China\ Dress\ Yan\ He\ Canary\ Ver1.00\\haku.pmx";;
 
-		wstring modelPath = L"C:\\Temp\\8\\8.pmx";
+		//wstring modelPath = L"C:\\Temp\\8\\8.pmx";
 		//wstring modelPath = L"C:\\Temp\\符华玄衣素裳\\符华loli配布版.pmx";
-		//wstring modelPath = L"C:\\Temp\\PPK\\ポプ子.pmx";
+		wstring modelPath = L"C:\\Temp\\PPK\\ポプ子.pmx";
 		//wstring modelPath = L"C:\\Temp\\haku\\haku.pmx";
 
 		Model model = Model(this->modelPath);

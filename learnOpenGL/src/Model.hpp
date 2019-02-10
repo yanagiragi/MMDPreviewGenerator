@@ -117,7 +117,7 @@ class Model
 
 		void LoadPMX(FILE *fs, bool verbose = false)
 		{
-			yr::PmxImporter pmxImporter(fs, true);
+			yr::PmxImporter pmxImporter(fs, false);
 			pmxImporter.Load(this->rawMesh);
 
 			useWChar = pmxImporter.textEncoding == 0;

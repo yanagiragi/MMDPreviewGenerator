@@ -161,13 +161,14 @@ namespace yr
 			cout << "Vertex Count = " << vertexCount << endl;
 
 			// hacks
-			const int vertexIndexSizeForDeform = 2;
+			// fixed index size for int16_t
+			const int realVertexIndexSize = 2 * sizeof(int8_t);
 
-			const int sizeOfBDEF1 = vertexIndexSizeForDeform;
-			const int sizeOfBDEF2 = vertexIndexSizeForDeform * 2 + sizeof(float) * 1;
-			const int sizeOfBDEF4 = vertexIndexSizeForDeform * 4 + sizeof(float) * 4;
-			const int sizeOfSDEF = vertexIndexSizeForDeform * 2 + sizeof(float) * 1 + (sizeof(float) * 3) * 3;
-			const int sizeOfQDEF = vertexIndexSizeForDeform * 4 + sizeof(float) * 4;
+			const int sizeOfBDEF1 = realVertexIndexSize;
+			const int sizeOfBDEF2 = realVertexIndexSize * 2 + sizeof(float) * 1;
+			const int sizeOfBDEF4 = realVertexIndexSize * 4 + sizeof(float) * 4;
+			const int sizeOfSDEF = realVertexIndexSize * 2 + sizeof(float) * 1 + (sizeof(float) * 3) * 3;
+			const int sizeOfQDEF = realVertexIndexSize * 4 + sizeof(float) * 4;
 
 			int8_t* weightDeform = NULL;
 
@@ -245,6 +246,9 @@ namespace yr
 			// Read Texture
 			current = yrRead(&textureCount, current, sizeof(int32_t));
 
+			// hacks
+			int8_t realTextureIndexSize = textureIndexSize;
+
 			cout << "Texture Count = " << textureCount << endl;
 
 			for (int32_t i = 0; i < textureCount; ++i)
@@ -286,6 +290,9 @@ namespace yr
 			// Read Materials
 			current = yrRead(&materialCount, current, sizeof(int32_t));
 			
+			// hacks
+			int8_t realMaterialIndexSize = materialIndexSize;
+
 			cout << "Material Count = " << materialCount << endl;
 
 			for (int32_t i = 0; i < materialCount; ++i)
@@ -352,8 +359,8 @@ namespace yr
 				current = yrRead(&drawingFlags, current, sizeof(int8_t));
 				current = yrRead(&edgeColour, current, sizeof(float) * 4);
 				current = yrRead(&edgeScale, current, sizeof(float));
-				current = yrRead(&textureIndex, current,textureIndexSize);
-				current = yrRead(&environmentIndex, current, textureIndexSize);
+				current = yrRead(&textureIndex, current, realTextureIndexSize);
+				current = yrRead(&environmentIndex, current, realTextureIndexSize);
 				current = yrRead(&environentBlendMode, current, sizeof(int8_t));
 
 				current = yrRead(&toonReference, current, sizeof(int8_t));
@@ -362,7 +369,7 @@ namespace yr
 					current = yrRead(&toonValue, current, sizeof(int8_t));
 				}
 				else {
-					current = yrRead(&toonValue, current, materialIndexSize);
+					current = yrRead(&toonValue, current, realMaterialIndexSize);
 				}
 
 				current = yrRead(&metaDataLength, current, sizeof(int32_t));
@@ -380,7 +387,7 @@ namespace yr
 				mat.edgeColor = glm::vec3(edgeColour[0], edgeColour[1], edgeColour[2]);
 				mat.edgeScale = edgeScale;
 				
-				switch (textureIndexSize)
+				switch (realTextureIndexSize)
 				{
 					case 1:
 						textureIndex = static_cast<int8_t>(textureIndex);
@@ -405,7 +412,297 @@ namespace yr
 				mesh.materials.push_back(mat);
 			}
 
-			// No Support For Bone, Morph, Display Frame, Rigid Body, Soft Bidy, etc.
+			return ;
+
+			// Read Bone
+			int32_t boneLength;
+			current = yrRead(&boneLength, current, sizeof(int32_t));
+
+			// hacks
+			int8_t realBoneIndexSize = BoneIndexSize;
+
+			for (int32_t i = 0; i < boneLength; ++i)
+			{
+				uint32_t boneNameLocalLength;
+				int8_t* boneNameLocal;
+
+				current = yrRead(&boneNameLocalLength, current, sizeof(uint32_t));
+				boneNameLocal = (int8_t*)malloc(sizeof(int8_t) * boneNameLocalLength);
+				current = yrRead(boneNameLocal, current, sizeof(int8_t) * boneNameLocalLength);
+
+				if (verbose) {
+					cout << "Bone Local [" + i << "] : ";
+					for (uint32_t j = 0; j < boneNameLocalLength; ++j) {
+						// output ascii exclude '\t\n' & control characters
+						if (boneNameLocal[j] <= 0x7f && boneNameLocal[j] >= 0x20)
+							cout << boneNameLocal[j];
+					}
+					cout << endl;
+				}
+
+				uint32_t boneNameUniversalLength;
+				int8_t* boneNameUniversal;
+
+				current = yrRead(&boneNameUniversalLength, current, sizeof(uint32_t));
+				boneNameUniversal = (int8_t*)malloc(sizeof(int8_t) * boneNameUniversalLength);
+				current = yrRead(boneNameUniversal, current, sizeof(int8_t) * boneNameUniversalLength);
+
+				if (verbose) {
+					cout << "Bone Universal [" + i << "] : ";
+					for (uint32_t j = 0; j < boneNameUniversalLength; ++j) {
+						// output ascii exclude '\t\n' & control characters
+						if (boneNameUniversal[j] <= 0x7f && boneNameUniversal[j] >= 0x20)
+							cout << boneNameUniversal[j];
+					}
+					cout << endl;
+				}
+
+				float position[3];
+				current = yrRead(position, current, sizeof(float) * 3);
+
+				int32_t parentBoneIndex;
+				current = yrRead(&parentBoneIndex, current, realBoneIndexSize);
+				parentBoneIndex = formIndex(parentBoneIndex, realBoneIndexSize);
+					
+				int32_t layer;
+				current = yrRead(&layer, current, sizeof(int32_t));
+				
+				int8_t flags[2];
+				current = yrRead(flags, current, sizeof(int8_t) * 2);
+
+				int8_t indexedTailPosition	= flags[0] & 1;
+				int8_t rotatable			= flags[0] & 2;
+				int8_t translatable			= flags[0] & 4;
+				int8_t isVisible			= flags[0] & 8;
+				int8_t enabled				= flags[0] & 16;
+				int8_t IK					= flags[0] & 32;
+
+				int8_t inheritRotation		= flags[1] & 1;
+				int8_t inheritTranslation	= flags[1] & 2;
+				int8_t fixedAxis			= flags[1] & 4;
+				int8_t localCoordinate		= flags[1] & 8;
+				int8_t physicAfterDeform	= flags[1] & 16;
+				int8_t externalParentDeform = flags[1] & 32;
+
+				float tailPosition[3];
+				int32_t tailBoneIndex;
+				if (indexedTailPosition == 0) {
+					current = yrRead(tailPosition, current, sizeof(float) * 3);
+				}
+				else {
+					current = yrRead(&tailBoneIndex, current, realBoneIndexSize);
+					tailBoneIndex = formIndex(tailBoneIndex, realBoneIndexSize);
+				}
+
+				int32_t parentIndex;
+				float parentInfluence;
+				if (inheritRotation != 0 || inheritTranslation != 0)
+				{	
+					current = yrRead(&parentIndex, current, realBoneIndexSize);
+					parentIndex = formIndex(parentIndex, realBoneIndexSize);
+					
+					current = yrRead(&parentInfluence, current, sizeof(float));
+				}
+
+				float axisDirection[3];
+				if (fixedAxis != 0)
+				{
+					current = yrRead(axisDirection, current, sizeof(float) * 3);
+				}
+
+				float xVector[3];
+				float zVector[3];
+				if (localCoordinate != 0)
+				{				
+					current = yrRead(xVector, current, sizeof(float) * 3);
+					current = yrRead(zVector, current, sizeof(float) * 3);
+				}
+
+				if (physicAfterDeform != 0)
+				{
+
+				}
+
+				int32_t externalParentIndex;
+				if (externalParentDeform != 0)
+				{
+					current = yrRead(&externalParentIndex, current, realBoneIndexSize);
+					externalParentIndex = formIndex(externalParentIndex, realBoneIndexSize);
+				}
+
+				int32_t IKTargetIndex;
+				int32_t loopCount;
+				float limitRadian;
+				int32_t linkCount;
+
+				if (IK != 0)
+				{
+					current = yrRead(&IKTargetIndex, current, realBoneIndexSize);
+					IKTargetIndex = formIndex(IKTargetIndex, realBoneIndexSize);
+
+					current = yrRead(&loopCount, current, sizeof(int32_t));
+					current = yrRead(&limitRadian, current, sizeof(float));
+					current = yrRead(&linkCount, current, sizeof(int32_t));
+
+					for (int32_t j = 0; j < linkCount; ++j)
+					{
+						int32_t boneIndex;
+						current = yrRead(&boneIndex, current, realBoneIndexSize);
+						boneIndex = formIndex(boneIndex, realBoneIndexSize);
+
+						int8_t hasLimits;
+						current = yrRead(&hasLimits, current, sizeof(int8_t));
+
+						float limitMin[3];
+						float limitMax[3];
+
+						if (hasLimits != 0)
+						{
+							current = yrRead(limitMin, current, sizeof(float) * 3);
+							current = yrRead(limitMax, current, sizeof(float) * 3);
+						}
+					}
+				}
+			}
+
+			// Read Morph
+			int32_t morphLength;
+			current = yrRead(&morphLength, current, sizeof(int32_t));
+			
+			// hacks
+			int8_t realMorphIndexSize = 2;
+
+			verbose = true;
+
+			for (int32_t i = 0; i < morphLength; ++i)
+			{
+				uint32_t morphNameLocalLength;
+				int8_t* morphNameLocal;
+
+				current = yrRead(&morphNameLocalLength, current, sizeof(uint32_t));
+				morphNameLocal = (int8_t*)malloc(sizeof(int8_t) * morphNameLocalLength);
+				current = yrRead(morphNameLocal, current, sizeof(int8_t) * morphNameLocalLength);
+
+				if (verbose) {
+					cout << "Morph Local [" + i << "] : ";
+					for (uint32_t j = 0; j < morphNameLocalLength; ++j) {
+						// output ascii exclude '\t\n' & control characters
+						if (morphNameLocal[j] <= 0x7f && morphNameLocal[j] >= 0x20)
+							cout << morphNameLocal[j];
+					}
+					cout << endl;
+				}
+
+				uint32_t morphNameUniversalLength;
+				int8_t* morphNameUniversal;
+
+				current = yrRead(&morphNameUniversalLength, current, sizeof(uint32_t));
+				morphNameUniversal = (int8_t*)malloc(sizeof(int8_t) * morphNameUniversalLength);
+				current = yrRead(morphNameUniversal, current, sizeof(int8_t) * morphNameUniversalLength);
+
+				if (verbose) {
+					cout << "Morph Universal [" + i << "] : ";
+					for (uint32_t j = 0; j < morphNameUniversalLength; ++j) {
+						// output ascii exclude '\t\n' & control characters
+						if (morphNameUniversal[j] <= 0x7f && morphNameUniversal[j] >= 0x20)
+							cout << morphNameUniversal[j];
+					}
+					cout << endl;
+				}
+
+				int8_t panelType;
+				int8_t morphType;
+				int32_t offsetSize;
+
+				current = yrRead(&panelType, current, sizeof(int8_t));
+				current = yrRead(&morphType, current, sizeof(int8_t));
+				current = yrRead(&offsetSize, current, sizeof(int32_t));
+
+				for (int32_t j = 0; j < offsetSize; ++j)
+				{
+					switch (morphType)
+					{
+						case 0: // Group
+							int32_t groupIndex;
+							float influence;
+							current = yrRead(&groupIndex, current, realMorphIndexSize);
+							groupIndex = formIndex(groupIndex, realVertexIndexSize);
+							current = yrRead(&influence, current, sizeof(float));
+							break;
+						case 1: // Vertex
+							int32_t vertexIndex;
+							float translation[3];
+							current = yrRead(&vertexIndex, current, realVertexIndexSize);
+							vertexIndex = formIndex(vertexIndex, realVertexIndexSize);
+							current = yrRead(translation, current, sizeof(float) * 3);
+							break;
+						case 2: // Bone
+							int32_t morphBoneIndex;
+							float morphBonetranslation[3];
+							float morphBonerotation[4];
+							current = yrRead(&morphBoneIndex, current, realBoneIndexSize);
+							morphBoneIndex = formIndex(morphBoneIndex, realBoneIndexSize);
+							current = yrRead(morphBonetranslation, current, sizeof(float) * 3);
+							current = yrRead(morphBonerotation, current, sizeof(float) * 4);
+							break;
+						case 3: // UV
+						case 4: // UV ext1
+						case 5: // UV ext2
+						case 6: // UV ext3
+						case 7: // UV ext4
+							int32_t UVVertexIndex;
+							float floats[4];
+							current = yrRead(&UVVertexIndex, current, realVertexIndexSize);
+							UVVertexIndex = formIndex(UVVertexIndex, realVertexIndexSize);
+							current = yrRead(translation, current, sizeof(float) * 4);
+							break;
+						case 8: // Matreial
+							int32_t materialIndex;
+							int8_t IsMultiplicative; //  0 for multiplicative, non-zero for additive
+
+							float diffuseColour[4];
+							float specularColour[3];
+							float specularStrength;
+							float ambientColour[3];
+							float edgeColour[4];
+							float edgeScale;
+							float textureTint[4];
+							float environmentTint[4];
+							float toonTint[4];
+							current = yrRead(&materialIndex, current, realMaterialIndexSize);
+							materialIndex = formIndex(materialIndex, realMaterialIndexSize);
+							current = yrRead(&IsMultiplicative, current, sizeof(int8_t));
+							current = yrRead(&diffuseColour, current, sizeof(float) * 4);
+							current = yrRead(&specularColour, current, sizeof(float) * 3);
+							current = yrRead(&specularStrength, current, sizeof(float));
+							current = yrRead(&ambientColour, current, sizeof(float) * 3);
+							current = yrRead(&edgeColour, current, sizeof(float) * 4);
+							current = yrRead(&edgeScale, current, sizeof(float));
+							current = yrRead(&toonTint, current, sizeof(float) * 4);
+							current = yrRead(&environmentTint, current, sizeof(float) * 4);
+							current = yrRead(&toonTint, current, sizeof(float) * 4);
+
+							// Do Something with the material
+							// mesh.materials[materialIndex].diffuse.a = diffuseColour[3];
+
+							break;
+						case 9: // version 2.1, Flip
+							throw new exception("Version 2.0 does not support morph type = flip!");
+							break;
+						case 10: // version 2.1, Impulse
+							throw new exception("Version 2.0 does not support morph type = Impulse!");
+							break;
+						default: // Error
+							throw new exception("Paring Morph Type Error!");
+							break;
+					}
+				}
+
+				cout << "123" << endl;
+			}
+
+
+			// Display Frame, Rigid Body, Soft Bidy, etc.
 			DebugObj(mesh);
 		}
 

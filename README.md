@@ -4,7 +4,7 @@
 
 Usage: `MMDPreviewGenerator.exe width height modelPath previewImageStorePath`
 
-Examples: `MMDPreviewGenerator.exe 1920 1440 "C:\Temp\8\8.pmx" "C:\Temp\8\8_preview.png"`
+Examples: `MMDPreviewGenerator.exe 1920 1440 "C:\Temp\ポプ子\ポプ子.pmx" "C:\Temp\ポプ子\ポプ子_preview.png"`
 
 ---
 
@@ -29,7 +29,7 @@ Examples: `MMDPreviewGenerator.exe 1920 1440 "C:\Temp\8\8.pmx" "C:\Temp\8\8_prev
   
   * Besides, Alpha may not handles very well
 
-  * However for now it is sufficient for **"Preview" purpose**.
+  * However for now it is sufficient for **"Preview"** purpose.
 
   * Our Results:
 

@@ -58,7 +58,7 @@ public:
 		stbi_flip_vertically_on_write(1);			
 		result = stbi_write_png(storeFilePath, GlobalConfigs::width, GlobalConfigs::height, format_nchannels, pixels, 0);
 
-		wcout << storeFilePath << " Stored." << endl;
+		cout << storeFilePath << " Stored." << endl;
 
 		free(pixels);
 	}

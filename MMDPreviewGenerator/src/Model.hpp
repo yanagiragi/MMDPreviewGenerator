@@ -238,6 +238,8 @@ class Model
 				GLenum internalFormat;
 				GLenum format;
 
+				bool noSupport = false;
+
 				if (n == 3)
 				{
 					internalFormat = GL_RGB;
@@ -248,6 +250,7 @@ class Model
 				}
 				else
 				{
+					noSupport = true;
 					cout << "Error When Parsing Texture Internal Format";
 				}
 
@@ -277,11 +280,13 @@ class Model
 				}
 				else
 				{
+					noSupport = true;
 					cout << "Error When Parsing Texture Internal Format";
 				}
 
 				// Give the image to OpenGL
-				glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, format, GL_UNSIGNED_BYTE, data);
+				if(!noSupport)
+					glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, format, GL_UNSIGNED_BYTE, data);
 
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

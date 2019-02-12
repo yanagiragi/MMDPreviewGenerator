@@ -211,7 +211,7 @@ class Model
 				if (!exists(widetexPath.c_str())) {
 					wstring tmp = directory + L"\\" + widetexPath;
 					if (!exists(tmp.c_str())) {
-						wcout << L"Missing Texture: " + widetexPath << endl;
+						cout << "Missing Texture: " + texPath << endl;
 						textureIDs.push_back(-1);
 						continue;
 					}
@@ -251,7 +251,7 @@ class Model
 				else
 				{
 					noSupport = true;
-					cout << "Error When Parsing Texture Internal Format";
+					cout << "Error When Parsing Texture Internal Format: internalFormat" << endl;
 				}
 
 				if (texType == L"bmp")
@@ -281,7 +281,7 @@ class Model
 				else
 				{
 					noSupport = true;
-					cout << "Error When Parsing Texture Internal Format";
+					cout << "Error When Parsing Texture Internal Format: texType" << endl;
 				}
 
 				// Give the image to OpenGL

@@ -76,7 +76,7 @@ int wmain(int argc, wchar_t **argv, wchar_t **envp)
 	}
 
 	glfwMakeContextCurrent(window);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	// glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwHideWindow(window);
 
 	// glad: load all OpenGL function pointers
@@ -94,7 +94,7 @@ int wmain(int argc, wchar_t **argv, wchar_t **envp)
 	//glfwShowWindow(window);
 
 	// render loop
-	//while (!glfwWindowShouldClose(window))
+	// while (!glfwWindowShouldClose(window))
 	{
 		// Deal Input
 		mono.Input(window);
@@ -102,7 +102,7 @@ int wmain(int argc, wchar_t **argv, wchar_t **envp)
 		// Main Render Function
 		mono.Update();
 
-		mono.ScreenShot();
+		mono.ScreenShot(true);
 
 		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
 		glfwSwapBuffers(window);

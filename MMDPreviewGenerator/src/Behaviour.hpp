@@ -35,19 +35,21 @@ public:
 
 	}
 
-	void Behaviour::ScreenShot(bool useTexture = false)
+	void Behaviour::ScreenShot()
 	{
 		const int format_nchannels = 4;
 		
+		glViewport(0, 0, GlobalConfigs::width, GlobalConfigs::height);
+
 		GLubyte *pixels;
 		pixels = (GLubyte*)malloc(sizeof(GLubyte) * GlobalConfigs::width * GlobalConfigs::height * format_nchannels);
 		memset(pixels, 0, GlobalConfigs::width * GlobalConfigs::height * format_nchannels * sizeof(GLubyte));
 
-		if (!useTexture) {
+		if (GlobalConfigs::useRenderTexture) {
+			glBindBuffer(GL_READ_BUFFER, frameBuffer);
 			glReadPixels(0, 0, GlobalConfigs::width, GlobalConfigs::height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 		}
-		else {
-			glBindBuffer(GL_READ_BUFFER, frameBuffer);
+		else {		
 			glReadPixels(0, 0, GlobalConfigs::width, GlobalConfigs::height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 		}	
 		
@@ -57,7 +59,7 @@ public:
 		stbi_flip_vertically_on_write(1);
 		result = stbi_write_png(storeFilePath, GlobalConfigs::width, GlobalConfigs::height, format_nchannels, pixels, 0);
 
-		cout << storeFilePath << " Stored." << endl;
+		wcout << GlobalConfigs::wStorePathBuffer << L" Stored." << endl;
 
 		free(pixels);
 	}
@@ -80,30 +82,33 @@ public:
 		model.SetupMeshes(VAOs, VBOs, EBOs);
 		model.SetupTextures(texIDs);
 
-		// Render Texture Setup
-		glGenFramebuffers(1, &frameBuffer);
-		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
-		
-		glGenTextures(1, &renderedTexture);
-		glBindTexture(GL_TEXTURE_2D, renderedTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GlobalConfigs::width, GlobalConfigs::height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderedTexture, 0);
-		
-		// bind depth texutre or else depth test will not work
-		glGenTextures(1, &depthTexture);
-		glBindTexture(GL_TEXTURE_2D, depthTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GlobalConfigs::width, GlobalConfigs::height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,  depthTexture, 0);
-		
-		// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
-				
-		auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-		if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-			std::cout << "Framebuffer not complete: " << fboStatus << std::endl;
+		if (GlobalConfigs::useRenderTexture)
+		{
+			// Render Texture Setup
+			glGenFramebuffers(1, &frameBuffer);
+			glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
-		cout << "=============== START END ================" << endl;
+			glGenTextures(1, &renderedTexture);
+			glBindTexture(GL_TEXTURE_2D, renderedTexture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GlobalConfigs::width, GlobalConfigs::height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderedTexture, 0);
+
+			// bind depth texutre or else depth test will not work
+			glGenTextures(1, &depthTexture);
+			glBindTexture(GL_TEXTURE_2D, depthTexture);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, GlobalConfigs::width, GlobalConfigs::height, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
+
+			// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+
+			auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+			if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+				wcout << L"Framebuffer not complete: " << fboStatus << std::endl;
+		}		
+
+		wcout << L"=============== START END ================" << endl;
 	}
 
 	void Behaviour::Update()
@@ -112,19 +117,16 @@ public:
 		// Check: https://stackoverflow.com/a/41367665
 
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-		glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
+		if(GlobalConfigs::useRenderTexture)
+			glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_TEXTURE_2D);
 
-		auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-		if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
-			std::cout << "Framebuffer not complete: " << fboStatus << std::endl;
-
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 				
 		glUseProgram(shaderProgram);
@@ -176,8 +178,7 @@ public:
 		}
 
 		// debug display
-		bool debug = true;
-		if(debug) {
+		if(GlobalConfigs::useRenderTexture) {
 			glBindFramebuffer(GL_FRAMEBUFFER, NULL);
 			glClear(GL_COLOR_BUFFER_BIT);
 
@@ -257,8 +258,6 @@ public:
 
 		else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
 			ScreenShot();
-		else if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
-			ScreenShot(true);
 		
 		// cout << "eye position = (" << mainCamera.eyex << ", " << mainCamera.eyey << ", " << mainCamera.eyez << ") ( p = " << mainCamera.eyep << ", t = " << mainCamera.eyet << ")" << endl;
 	}

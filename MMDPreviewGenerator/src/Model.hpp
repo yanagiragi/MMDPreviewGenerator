@@ -15,6 +15,8 @@
 #include "mesh.h"
 #include "PmxImporter.hpp"
 
+#include <locale>
+
 using namespace std;
 
 class Model 
@@ -83,9 +85,24 @@ class Model
 			FILE *fs;
 
 			errno_t err = _wfopen_s(&fs, path.c_str(), L"r");
+			
+			{
+				// only use cout to output model name here.
+				
+				wstring string_to_convert;
+				using convert_type = std::codecvt_utf8<wchar_t>;
+				std::wstring_convert<convert_type, wchar_t> converter;
+				std::string converted_str = converter.to_bytes(string_to_convert);
 
-			wcout << L"Open File: " << this->path << endl;
-			cout << "Status: " << ((err != 0) ? "FAIL" : "PASS") << endl;
+				wcout << "Open File (wstring): " << this->path << endl;
+				
+				// place holder for wstring control characters
+				cout << "\t\t\t\t" << endl;
+				
+				cout << "Open File (utf-8): " << converted_str << endl;
+				
+				wcout << "Status: " << ((err != 0) ? L"FAIL" : L"PASS") << endl;
+			}
 
 			if (err != 0) {
 				return;
@@ -102,7 +119,7 @@ class Model
 			else if (type == L".x")
 				modelType = MODELTYPE::X;
 
-			wcout << L"Model Type: " << type << L"(" << enumString[static_cast<int>(modelType)] << L")" << endl;
+			wcout << L"Model Type: " << type << L"(" << enumString[static_cast<int>(modelType)] << L")" << endl << endl;
 
 			switch (modelType)
 			{
@@ -211,7 +228,7 @@ class Model
 				if (!exists(widetexPath.c_str())) {
 					wstring tmp = directory + L"\\" + widetexPath;
 					if (!exists(tmp.c_str())) {
-						cout << "Missing Texture: " + texPath << endl;
+						wcout << L"Missing Texture: " + widetexPath << endl;
 						textureIDs.push_back(-1);
 						continue;
 					}
@@ -251,7 +268,7 @@ class Model
 				else
 				{
 					noSupport = true;
-					cout << "Error When Parsing Texture Internal Format: internalFormat" << endl;
+					wcout << L"Error When Parsing Texture Internal Format: internalFormat" << endl;
 				}
 
 				if (texType == L"bmp")
@@ -281,7 +298,7 @@ class Model
 				else
 				{
 					noSupport = true;
-					cout << "Error When Parsing Texture Internal Format: texType" << endl;
+					wcout << L"Error When Parsing Texture Internal Format: texType" << endl;
 				}
 
 				// Give the image to OpenGL

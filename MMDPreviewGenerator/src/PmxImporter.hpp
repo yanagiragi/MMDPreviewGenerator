@@ -85,7 +85,7 @@ namespace yr
 			current = yrRead(&version, current, sizeof(float));
 			current = yrRead(&globalsCount, current, sizeof(int8_t));
 
-			cout << "Version: " << version << endl;
+			wcout << "Version: " << version << endl;
 
 			globals = (int8_t*)malloc(sizeof(int8_t) * globalsCount);
 			current = yrRead(globals, current, sizeof(int8_t) * globalsCount);
@@ -106,11 +106,11 @@ namespace yr
 			current = yrRead(modelNameLocal, current, sizeof(int8_t) * modelNameLocalLength);
 
 			if (verbose) {
-				cout << "Model Local Name: ";
+				wcout << "Model Local Name: ";
 				for (uint32_t i = 0; i < modelNameLocalLength; ++i) {
-					cout << modelNameLocal[i];
+					wcout << modelNameLocal[i];
 				}
-				cout << endl;
+				wcout << endl;
 			}
 
 			// Parse Model Name Universal	
@@ -119,11 +119,11 @@ namespace yr
 			current = yrRead(modelNameUniversal, current, sizeof(int8_t) * modelNameUniversalLength);
 			
 			if (verbose) {
-				cout << "Model Universal Name: ";
+				wcout << "Model Universal Name: ";
 				for (uint32_t i = 0; i < modelNameUniversalLength; ++i) {
-					cout << modelNameUniversal[i];
+					wcout << modelNameUniversal[i];
 				}
-				cout << endl;
+				wcout << endl;
 			}
 
 			// // Parse Model Comments Local
@@ -132,13 +132,13 @@ namespace yr
 			current = yrRead(commentsLocal, current, sizeof(int8_t) * commentsLocalLength);
 			
 			if (verbose) {
-				cout << "Model Comments Local: ";
+				wcout << "Model Comments Local: ";
 				for (uint32_t i = 0; i < commentsLocalLength; ++i) {
 					// output ascii exclude '\t\n' & control characters
 					if (commentsLocal[i] <= 0x7f && commentsLocal[i] >= 0x20)
-						cout << commentsLocal[i];
+						wcout << commentsLocal[i];
 				}
-				cout << endl;
+				wcout << endl;
 			}
 
 			// // Parse Model Comments Universal
@@ -147,18 +147,18 @@ namespace yr
 			current = yrRead(commentsUniversal, current, sizeof(int8_t) * commentsUniversalLength);
 
 			if (verbose) {
-				cout << "Model Comments Universal: ";
+				wcout << "Model Comments Universal: ";
 				for (uint32_t i = 0; i < commentsUniversalLength; ++i) {
 					// output ascii exclude '\t\n' & control characters
 					if (commentsUniversal[i] <= 0x7f && commentsUniversal[i] >= 0x20)
-						cout << commentsUniversal[i];
+						wcout << commentsUniversal[i];
 				}
-				cout << endl;
+				wcout << endl;
 			}
 
 			current = yrRead(&vertexCount, current, sizeof(int32_t));
 
-			cout << "Vertex Count = " << vertexCount << endl;
+			wcout << "Vertex Count = " << vertexCount << endl;
 
 			// hacks
 			// fixed index size for int16_t
@@ -203,7 +203,7 @@ namespace yr
 							sizeOfWeightDeform = sizeOfQDEF;
 						}
 						else {
-							cout << "Error On Parsing Weight deform! type = " << weightDeformType << endl;
+							wcout << "Error On Parsing Weight deform! type = " << weightDeformType << endl;
 							throw new exception();
 						}
 						break;
@@ -233,7 +233,7 @@ namespace yr
 			// read face data
 			current = yrRead(&surfaceCount, current, sizeof(int32_t));
 
-			cout << "Surface Count = " << surfaceCount << endl;
+			wcout << "Surface Count = " << surfaceCount << endl;
 
 			for (int32_t i = 0; i < surfaceCount; ++i)
 			{
@@ -249,7 +249,7 @@ namespace yr
 			// hacks
 			int8_t realTextureIndexSize = textureIndexSize;
 
-			cout << "Texture Count = " << textureCount << endl;
+			wcout << "Texture Count = " << textureCount << endl;
 
 			for (int32_t i = 0; i < textureCount; ++i)
 			{
@@ -280,7 +280,7 @@ namespace yr
 				mesh.textures.push_back(tex);
 
 				if (verbose) {
-					cout << "Found Texture: " << texturePathStr << endl;
+					wcout <<  "Found Texture: " << wtexturePath << endl;
 				}
 
 				// free(wchartexturePath);
@@ -293,7 +293,7 @@ namespace yr
 			// hacks
 			int8_t realMaterialIndexSize = materialIndexSize;
 
-			cout << "Material Count = " << materialCount << endl;
+			wcout << "Material Count = " << materialCount << endl;
 
 			for (int32_t i = 0; i < materialCount; ++i)
 			{
@@ -305,13 +305,13 @@ namespace yr
 				current = yrRead(materialNameLocal, current, sizeof(int8_t) * materialNameLocalLength);
 
 				if (verbose) {
-					cout << "Material [" + i << "] : ";
+					wcout << "Material [" + i << "] : ";
 					for (uint32_t j = 0; j < materialNameLocalLength; ++j) {
 						// output ascii exclude '\t\n' & control characters
 						if (materialNameLocal[j] <= 0x7f && materialNameLocal[j] >= 0x20)
-							cout << materialNameLocal[j];
+							wcout << materialNameLocal[j];
 					}
-					cout << endl;
+					wcout << endl;
 				}
 
 				uint32_t materialNameUniversalLength;
@@ -322,13 +322,13 @@ namespace yr
 				current = yrRead(materialNameUniversal, current, sizeof(int8_t) * materialNameUniversalLength);
 
 				if (verbose) {
-					cout << "Material [" + i << "] : ";
+					wcout << "Material [" + i << "] : ";
 					for (uint32_t j = 0; j < materialNameUniversalLength; ++j) {
 						// output ascii exclude '\t\n' & control characters
 						if (materialNameUniversal[j] <= 0x7f && materialNameUniversal[j] >= 0x20)
-							cout << materialNameUniversal[j];
+							wcout << materialNameUniversal[j];
 					}
-					cout << endl;
+					wcout << endl;
 				}
 
 				float diffuseColour[4];
@@ -432,13 +432,13 @@ namespace yr
 				current = yrRead(boneNameLocal, current, sizeof(int8_t) * boneNameLocalLength);
 
 				if (verbose) {
-					cout << "Bone Local [" + i << "] : ";
+					wcout << "Bone Local [" + i << "] : ";
 					for (uint32_t j = 0; j < boneNameLocalLength; ++j) {
 						// output ascii exclude '\t\n' & control characters
 						if (boneNameLocal[j] <= 0x7f && boneNameLocal[j] >= 0x20)
-							cout << boneNameLocal[j];
+							wcout << boneNameLocal[j];
 					}
-					cout << endl;
+					wcout << endl;
 				}
 
 				uint32_t boneNameUniversalLength;
@@ -449,13 +449,13 @@ namespace yr
 				current = yrRead(boneNameUniversal, current, sizeof(int8_t) * boneNameUniversalLength);
 
 				if (verbose) {
-					cout << "Bone Universal [" + i << "] : ";
+					wcout << "Bone Universal [" + i << "] : ";
 					for (uint32_t j = 0; j < boneNameUniversalLength; ++j) {
 						// output ascii exclude '\t\n' & control characters
 						if (boneNameUniversal[j] <= 0x7f && boneNameUniversal[j] >= 0x20)
-							cout << boneNameUniversal[j];
+							wcout << boneNameUniversal[j];
 					}
-					cout << endl;
+					wcout << endl;
 				}
 
 				float position[3];
@@ -586,13 +586,13 @@ namespace yr
 				current = yrRead(morphNameLocal, current, sizeof(int8_t) * morphNameLocalLength);
 
 				if (verbose) {
-					cout << "Morph Local [" + i << "] : ";
+					wcout << "Morph Local [" + i << "] : ";
 					for (uint32_t j = 0; j < morphNameLocalLength; ++j) {
 						// output ascii exclude '\t\n' & control characters
 						if (morphNameLocal[j] <= 0x7f && morphNameLocal[j] >= 0x20)
-							cout << morphNameLocal[j];
+							wcout << morphNameLocal[j];
 					}
-					cout << endl;
+					wcout << endl;
 				}
 
 				uint32_t morphNameUniversalLength;
@@ -603,13 +603,13 @@ namespace yr
 				current = yrRead(morphNameUniversal, current, sizeof(int8_t) * morphNameUniversalLength);
 
 				if (verbose) {
-					cout << "Morph Universal [" + i << "] : ";
+					wcout << "Morph Universal [" + i << "] : ";
 					for (uint32_t j = 0; j < morphNameUniversalLength; ++j) {
 						// output ascii exclude '\t\n' & control characters
 						if (morphNameUniversal[j] <= 0x7f && morphNameUniversal[j] >= 0x20)
-							cout << morphNameUniversal[j];
+							wcout << morphNameUniversal[j];
 					}
-					cout << endl;
+					wcout << endl;
 				}
 
 				int8_t panelType;

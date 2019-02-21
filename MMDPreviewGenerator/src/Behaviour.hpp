@@ -113,10 +113,9 @@ public:
 
 	void Behaviour::Update()
 	{
-		// IMPORTANT: Clear Before Bind Buffer
+		// IMPORTANT: Remeber to Clear Binded Depth Buffer
 		// Check: https://stackoverflow.com/a/41367665
 
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 		if(GlobalConfigs::useRenderTexture)
 			glBindFramebuffer(GL_FRAMEBUFFER, frameBuffer);
 
@@ -264,7 +263,8 @@ public:
 
 	void Behaviour::Destroy()
 	{
-		glDeleteFramebuffers(1, &frameBuffer);
+		if (GlobalConfigs::useRenderTexture)
+			glDeleteFramebuffers(1, &frameBuffer);
 		glDeleteVertexArrays(1, &VAO);
 		glDeleteBuffers(1, &VBO);
 		glDeleteBuffers(1, &EBO);

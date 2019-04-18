@@ -10,16 +10,7 @@ Examples: `MMDPreviewGenerator.exe 1920 1440 "C:\Temp\ポプ子\ポプ子.pmx" "
 
 ### Restrictions: 
 
-  * For now No Support for glReadPixels when obscured pixels
-  
   * Output png only
-
-### Suggestions:
-
-   * Resolution parameters should below (not equal, depends on your taskbar size) your monitor resolution
-
-   * Or, use it with VM to create virtual monitor when huge resolutions
-
 
 ### Shaders
 
